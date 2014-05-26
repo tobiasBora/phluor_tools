@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: aea21d4bbcd04b5904f30116b1253f55) *)
+(* DO NOT EDIT (digest: 401e691f304d7e5fa7b9097ffcf3eb47) *)
 
 This is the INSTALL file for the phluor_tools distribution.
 
@@ -10,10 +10,9 @@ Dependencies
 ============
 
 In order to compile this package, you will need:
-
-* ocaml
-* findlib
-* fileutils for executable install_data
+                                                * ocaml
+                                                * findlib
+                                                * fileutils
 
 Installing
 ==========

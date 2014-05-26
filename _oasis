@@ -13,7 +13,11 @@ Executable "phluor_tools"
   BuildTools: ocamlbuild
   MainIs:     main.ml
   BuildDepends:
+    str,
+    fileutils,
+    unix,
     str
+    
 
 Executable install_data
   Path:		src/phluor_tools/

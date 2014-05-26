@@ -24,8 +24,41 @@ let rec ask ?default ?regexp question =
 		
 let interactive () =
   printf "%s" Phluor_default.data_folder;
+  let dico = ref [] in
+  
+  (* ===== Name ===== *)
   let name = ask "What is the name of the project ?"
 		 ~regexp:(alphanum_reg, "Please use only letters, numbers and underscores, and begin with a letter.")in
+  dico := [("PROJECT_NAME", name)];
 
+  (* ===== Templates ==== *)
+  let templates_list =
+    FileUtil.(ls (Phluor_default.data_folder)
+	      |> filter Is_dir |> List.map (FilePath.(basename))) in
+  let nb_templates = List.length templates_list in
 
-  printf "The project %s has been generated\n" name
+  let template_nb =
+    let rec display_template n l = match l with
+	[] -> ()
+      | t::r -> (printf "%d - %s\n" n t; display_template (n+1) r)
+    in
+    let rec aux () =
+      try
+	display_template 1 templates_list;
+	let n = read_int () in
+	if n < 1 || n > nb_templates then
+	  failwith "The number is not in the good range"
+	else n
+      with Failure e -> printf "%s\n" e; aux ()
+	 | _ -> printf "You must give a number.\n"; aux ()
+    in
+    aux ()
+  in
+
+  let template_name = List.nth templates_list (template_nb - 1) in
+
+  printf "You chose the template %s" template_name;
+
+  Phluor_file_operation.copy_and_replace !dico !dico (Phluor_default.data_folder ^ template_name ^ "/template") ("./" ^ template_name);
+  
+  printf "The project %s has been generated in %s\n" name template_name

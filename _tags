@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 4c9c2f4f84676cef5823166f068ca259)
+# DO NOT EDIT (digest: 055191c5f7708d2b8624d6521fd6e672)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -14,7 +14,9 @@
 "_darcs": -traverse
 "_darcs": not_hygienic
 # Executable phluor_tools
+"src/phluor_tools/main.byte": pkg_fileutils
 "src/phluor_tools/main.byte": pkg_str
+"src/phluor_tools/main.byte": pkg_unix
 # Executable install_data
 "src/phluor_tools/install_data.byte": pkg_fileutils
 "src/phluor_tools/install_data.byte": pkg_str

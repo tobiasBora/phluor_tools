@@ -43,26 +43,34 @@ let replace_in_file dico_filename dico_content src dst =
       if same_file then
 	FileUtil.cp ~recurse:true [new_dst] dst_translated;
       
-      if is_exec then
-	Unix.(chmod (* Unix because FileUtil doesn't provide it yet *)
-		new_dst
-		( Unix.((lstat new_dst).st_perm) + 0o111))
+      (* if is_exec then *)
+	(* Unix.(chmod (\* Unix because FileUtil doesn't provide it yet *\) *)
+		(* new_dst *)
+		(* ( Unix.((lstat new_dst).st_perm) + 0o111)) *)
     end
 
 let copy_and_replace dico_filename dico_content src_dir dst_dir =
   (* Iterate on all file in folder and copy them in dst_dir *)
-  List.map
-    (fun file -> replace_in_file
-		   dico_filename
-		   dico_content
-		   file
-		   FilePath.(reparent
-			       (make_absolute (FileUtil.pwd ()) src_dir)
-			       dst_dir
-			       file))
-    FileUtil.(find
-		True
-		src_dir
-		(fun x y ->
-		 if FileUtil.(test Is_file y) then y :: x else x)
-		[])
+  if FileUtil.(test Is_dir src_dir) then
+    List.iter
+      (fun file -> replace_in_file
+		     dico_filename
+		     dico_content
+		     file
+		     FilePath.(reparent
+				 (make_absolute (FileUtil.pwd ()) src_dir)
+				 dst_dir
+				 file))
+      FileUtil.(find
+		  True
+		  src_dir
+		  (fun x y ->
+		   if FileUtil.(test Is_file y) then y :: x else x)
+		  [])
+  else if FileUtil.(test Is_file src_dir) then
+    if FileUtil.(test Is_dir dst_dir) then
+      replace_in_file
+	dico_filename dico_content
+	src_dir
+	(FilePath.(concat (make_filename [dst_dir]) (basename src_dir) ))
+    else replace_in_file dico_content dico_content src_dir dst_dir

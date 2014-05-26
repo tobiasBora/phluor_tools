@@ -3,13 +3,16 @@ open Printf
 
 let () =
   (* === Find src/dst == *)
-  let dst = FilePath.make_filename [Sys.argv.(1); Sys.argv.(2)] in
-  let dst_name = FilePath.(string_of_path [dst]) in
-
   let src = FilePath.(concat current_dir
 			     (make_filename [Sys.argv.(3)])) in
   let src_name = FilePath.(string_of_path [src]) in
 
+  let dst = FilePath.make_filename [Sys.argv.(1); Sys.argv.(2)] in
+  let dst_name = FilePath.(string_of_path [dst]) in
+  FileUtil.mkdir ~parent:true dst;
+  
   (* === Copy === *)
-  Phluor_file_operation.copy_and_replace [] [] src dst;
-	   
+  List.iter
+    (fun src_file -> Phluor_file_operation.copy_and_replace [] [] src_file dst_name)
+    FileUtil.(ls src)
+
