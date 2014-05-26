@@ -81,5 +81,5 @@ let copy_and_replace_inside dico_filename dico_content src_dir dst_dir =
   FileUtil.mkdir ~parent:true dst_dir;
   List.iter
     (fun src_file ->
-     copy_and_replace [] [] src_file dst_dir)
+     copy_and_replace dico_filename dico_content src_file dst_dir)
     FileUtil.(ls src_dir)

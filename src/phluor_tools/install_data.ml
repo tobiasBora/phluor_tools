@@ -9,7 +9,6 @@ let () =
 
   let dst = FilePath.make_filename [Sys.argv.(1); Sys.argv.(2)] in
   let dst_name = FilePath.(string_of_path [dst]) in
-  FileUtil.mkdir ~parent:true dst;
   
   (* === Copy === *)
   Phluor_file_operation.copy_and_replace_inside [] [] src_name dst_name;
