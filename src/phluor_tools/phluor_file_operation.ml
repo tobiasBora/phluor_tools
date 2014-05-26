@@ -49,7 +49,7 @@ let replace_in_file dico_filename dico_content src dst =
 		( Unix.((lstat new_dst).st_perm) + 0o111))
     end
 
-let copy_and_replace debug dico_filename dico_content src_dir dst_dir =
+let copy_and_replace dico_filename dico_content src_dir dst_dir =
   (* Iterate on all file in folder and copy them in dst_dir *)
   List.map
     (fun file -> replace_in_file
