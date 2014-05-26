@@ -1,0 +1,26 @@
+OASISFormat: 0.4
+Name:        phluor_tools
+Version:     1.0
+Synopsis:    Phluor_tools wants to provide tools to speed up the creation of
+  a website based on Eliom.
+Authors:     Léo Colisson
+License:     MIT
+Plugins:     META (0.4), StdFiles (0.4), DevFiles (0.4)
+FilesAB:     src/phluor_tools/phluor_default.ml.ab
+
+Executable "phluor_tools"
+  Path:       src/phluor_tools/
+  BuildTools: ocamlbuild
+  MainIs:     main.ml
+  BuildDepends:
+    str
+
+Executable install_data
+  Path:		src/phluor_tools/
+  BuildTools: ocamlbuild
+  MainIs:	install_data.ml
+  BuildDepends:	fileutils, unix, str
+  Install:	false
+
+PostInstallCommand: $install_data $datadir $pkg_name data
+

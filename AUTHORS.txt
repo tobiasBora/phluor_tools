@@ -1,0 +1,8 @@
+(* OASIS_START *)
+(* DO NOT EDIT (digest: 4ece2971766f01d0840b65c60187afac) *)
+
+Authors of phluor_tools:
+
+* Léo Colisson
+
+(* OASIS_STOP *)
