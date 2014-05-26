@@ -43,10 +43,10 @@ let replace_in_file dico_filename dico_content src dst =
       if same_file then
 	FileUtil.cp ~recurse:true [new_dst] dst_translated;
       
-      (* if is_exec then *)
-	(* Unix.(chmod (\* Unix because FileUtil doesn't provide it yet *\) *)
-		(* new_dst *)
-		(* ( Unix.((lstat new_dst).st_perm) + 0o111)) *)
+      if is_exec then
+	Unix.(chmod (* Unix because FileUtil doesn't provide it yet *)
+		new_dst
+		( Unix.((lstat new_dst).st_perm) + 0o111))
     end
 
 let copy_and_replace dico_filename dico_content src_dir dst_dir =
