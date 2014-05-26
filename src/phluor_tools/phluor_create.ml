@@ -27,13 +27,14 @@ let interactive () =
   let dico = ref [] in
   
   (* ===== Name ===== *)
-  let name = ask "What is the name of the project ?"
+  let project_name = ask "What is the name of the project ?"
 		 ~regexp:(alphanum_reg, "Please use only letters, numbers and underscores, and begin with a letter.")in
-  dico := [("PROJECT_NAME", name)];
+  dico := [("PROJECT_NAME", project_name)];
 
   (* ===== Templates ==== *)
+  let templates_folder = FilePath.make_filename [Phluor_default.data_folder; "templates"] in
   let templates_list =
-    FileUtil.(ls (Phluor_default.data_folder)
+    FileUtil.(ls templates_folder
 	      |> filter Is_dir |> List.map (FilePath.(basename))) in
   let nb_templates = List.length templates_list in
 
@@ -57,8 +58,9 @@ let interactive () =
 
   let template_name = List.nth templates_list (template_nb - 1) in
 
-  printf "You chose the template %s" template_name;
+  printf "You chose the template %s\n" template_name;
 
-  Phluor_file_operation.copy_and_replace !dico !dico (Phluor_default.data_folder ^ template_name ^ "/template") ("./" ^ template_name);
+  printf "%s --> %s\n" (FilePath.make_filename [templates_folder; template_name; "template"]) ("./" ^ template_name);
+  Phluor_file_operation.copy_and_replace_inside !dico !dico (FilePath.make_filename [templates_folder; template_name; "template"]) ("./" ^ project_name);
   
-  printf "The project %s has been generated in %s\n" name template_name
+  printf "The project %s has been generated in %s\n" project_name project_name

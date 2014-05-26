@@ -12,7 +12,5 @@ let () =
   FileUtil.mkdir ~parent:true dst;
   
   (* === Copy === *)
-  List.iter
-    (fun src_file -> Phluor_file_operation.copy_and_replace [] [] src_file dst_name)
-    FileUtil.(ls src)
+  Phluor_file_operation.copy_and_replace_inside [] [] src_name dst_name;
 

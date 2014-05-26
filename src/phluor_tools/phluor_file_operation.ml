@@ -58,9 +58,9 @@ let copy_and_replace dico_filename dico_content src_dir dst_dir =
 		     dico_content
 		     file
 		     FilePath.(reparent
-				 (make_absolute (FileUtil.pwd ()) src_dir)
-				 dst_dir
-				 file))
+				 (make_absolute (FileUtil.pwd ()) (dirname src_dir))
+				 (make_absolute (FileUtil.pwd ()) dst_dir)
+				 (make_absolute (FileUtil.pwd ()) file)))
       FileUtil.(find
 		  True
 		  src_dir
@@ -74,3 +74,12 @@ let copy_and_replace dico_filename dico_content src_dir dst_dir =
 	src_dir
 	(FilePath.(concat (make_filename [dst_dir]) (basename src_dir) ))
     else replace_in_file dico_content dico_content src_dir dst_dir
+
+(* Same as copy_and_replace but copy the files
+   which are IN the folder, not the folder itself *)
+let copy_and_replace_inside dico_filename dico_content src_dir dst_dir =
+  FileUtil.mkdir ~parent:true dst_dir;
+  List.iter
+    (fun src_file ->
+     copy_and_replace [] [] src_file dst_dir)
+    FileUtil.(ls src_dir)
