@@ -3,10 +3,16 @@ type project = {mutable name: string}
 
 exception Bad_answer
 
-let alphanum_reg = "[a-zA-Z][0-9a-zA-Z_]*"
+let letter_alphanum_reg = "^[a-zA-Z][0-9a-zA-Z_]*$"
+let alphanum_reg = "^[0-9a-zA-Z_]+$"
 
+let remove_spaces str = Str.global_replace (Str.regexp "[ \t]+") "" str
+let remove_trailing_spaces str =
+  Str.global_replace (Str.regexp "^[ \t]*") "" str
+  |> Str.global_replace (Str.regexp "[ \t]*$") "" 
+					   
 (* Regexp : string of regexp * error_message : string option * string *)
-let ask_one question default regexp =
+let ask_one ?default ?regexp question =
   printf "%s\n   " question;
   match (read_line (), default, regexp) with
     ("", None, _) -> raise Bad_answer
@@ -17,18 +23,18 @@ let ask_one question default regexp =
   | (s, _,_) -> s
 
 let rec ask ?default ?regexp question =
-  try ask_one question default regexp
+  try ask_one ?default ?regexp question
   with
     Failure str -> (printf "%s\n" str; ask ?default ?regexp question)
-  | _ -> (printf "You have to fill this filed.\n"; ask ?default ?regexp question)
+  | _ -> (printf "You have to fill this field.\n"; ask ?default ?regexp question)
 		
 let interactive () =
-  printf "%s" Phluor_default.data_folder;
+  (* printf "%s" Phluor_default.data_folder; *)
   let dico = ref [] in
   
   (* ===== Name ===== *)
   let project_name = ask "What is the name of the project ?"
-		 ~regexp:(alphanum_reg, "Please use only letters, numbers and underscores, and begin with a letter.")in
+		 ~regexp:(letter_alphanum_reg, "Please use only letters, numbers and underscores, and begin with a letter.")in
   dico := [("PROJECT_NAME", project_name)];
 
   (* ===== Templates ==== *)
@@ -38,6 +44,7 @@ let interactive () =
 	      |> filter Is_dir |> List.map (FilePath.(basename))) in
   let nb_templates = List.length templates_list in
 
+  printf "Please choose a template number.\n";
   let template_nb =
     let rec display_template n l = match l with
 	[] -> ()
@@ -57,10 +64,27 @@ let interactive () =
   in
 
   let template_name = List.nth templates_list (template_nb - 1) in
-
+  let template_folder = (FilePath.make_filename [templates_folder; template_name; "template"]) in
   printf "You chose the template %s\n" template_name;
 
-  printf "%s --> %s\n" (FilePath.make_filename [templates_folder; template_name; "template"]) ("./" ^ template_name);
-  Phluor_file_operation.copy_and_replace_inside !dico !dico (FilePath.make_filename [templates_folder; template_name; "template"]) ("./" ^ project_name);
+  printf "Replacement words...\n";
+  let dico_file = open_in (FilePath.make_filename [templates_folder; template_name; "replacement.phluor"]) in
+  (try
+      let i = ref 0 in
+      while true do
+	incr i;
+	let line = input_line dico_file in
+	match Str.split (Str.regexp "|") line with
+	  [word; question] -> dico := (remove_spaces word,
+				       ask (remove_trailing_spaces question))
+				      :: (!dico)
+	| [word; question; default] -> dico := (remove_spaces word, ask ~default:default ((remove_trailing_spaces question) ^ " (Default : " ^ default ^ ")")) :: (!dico)
+	| [] -> ()
+	| _ -> (printf "The line %d : \"%s\" has an error... (2-3 fields separated with '|')\n" !i line; exit 1)
+      done;
+    with End_of_file -> close_in dico_file);
+			     
+  printf "%s --> %s\n" template_folder ("./" ^ template_name);
+  Phluor_file_operation.copy_and_replace_inside !dico !dico template_folder ("./" ^ project_name);
   
   printf "The project %s has been generated in %s\n" project_name project_name
