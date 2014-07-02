@@ -15,7 +15,8 @@ let string_of_file filename =
 
 (** Replace in a string all words in the dico with it's "translation". If keep is true then keep the %%WORD%% after the replacement.
 replace_in_string : (string * string) list -> string *)
-let rec replace_in_string ?sep1:(sep1="%%") ?sep2:(sep2="%%") ?keep:(keep=false) dico str = match dico with
+let rec replace_in_string ?(sep1="%%") ?(sep2="%%") ?(keep=false) dico str =
+  match dico with
     [] -> str
   | (w1, w2)::r -> replace_in_string
 		     r
@@ -25,7 +26,7 @@ let rec replace_in_string ?sep1:(sep1="%%") ?sep2:(sep2="%%") ?keep:(keep=false)
 			str)
 		     
 (** Replace all occurences of %%INC(myfile)%% with the content of prefix/myfile (the '/' should be in prefix if needed) *)
-let rec replace_include_in_string ?sep1:(sep1="%%INC(") ?sep2:(sep2=")%%") ?prefix:(prefix="") ?keep:(keep=false) str =
+let rec replace_include_in_string ?(sep1="%%INC(") ?(sep2=")%%") ?(prefix="") ?(keep=false) str =
   Str.global_substitute
      (Str.regexp (sep1 ^ ".+" ^ sep2))
      (fun text ->
@@ -40,33 +41,37 @@ let rec replace_include_in_string ?sep1:(sep1="%%INC(") ?sep2:(sep2=")%%") ?pref
      str
 
 (** Remove all occurences of include, usefull if you use the option keep for example*)
-let remove_inc ?sep1:(sep1="%%") ?sep2:(sep2="%%") str =
+let remove_inc ?(sep1="%%") ?(sep2="%%") str =
   Str.global_replace
     (Str.regexp (sep1 ^ ".*" ^ sep2))
     ""
     str
     
 (** Convert a file (separate with '=') in dico. Comments begins with # *)
-let dico_of_file ?comment:(comment=true) ?sep:(sep="=") filename =
-  let ic = open_in filename in
-  let i = ref 0 in
-  let rec aux acc =
-    try
-      let line = input_line ic in
-      incr i;
-      if comment && line.[0] = '#' then aux acc
-      else
-	let spl = Str.split (Str.regexp sep) line in
-	match spl with
-	  [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)
-	| _ -> failwith (Printf.sprintf "An error occured on line %d : '%s'" (!i) line);
-    with
-      Failure s -> (close_in ic; failwith s)
-    | _ -> (close_in ic; acc)
-  in
-  aux []
-  
-let replace_in_file dico_filename dico_content src dst =
+let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
+  try
+    let ic = open_in filename in
+    let i = ref 0 in
+    let rec aux acc =
+      try
+	let line = input_line ic in
+	incr i;
+	if comment && line.[0] = '#' then aux acc
+	else
+	  let spl = Str.split (Str.regexp sep) line in
+	  match spl with
+	    [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)
+	  | _ -> failwith (Printf.sprintf "An error occured on line %d : '%s'" (!i) line);
+      with
+	Failure s -> (close_in ic; failwith s)
+      | _ -> (close_in ic; acc)
+    in
+    aux []
+  with Sys_error e ->
+    if avoid_error then (Printf.printf "Warning : %s\n" e; [])
+    else (Printf.printf "hi";raise (Sys_error e))
+	       
+let replace_in_file dico_filename dico_content ?(prefix="") ?(keep_dic=false) ?(inc=false) ?(keep_inc=false) ?(rem_inc_only=false) src dst =
   (* Replace the destination name *)
   let dst_translated = replace_in_string dico_filename dst in
      
@@ -92,7 +97,13 @@ let replace_in_file dico_filename dico_content src dst =
       (try
 	  while true do
 	    let line1 = input_line src_ic in
-	    let new_line = replace_in_string dico_content line1 ^ "\n" in
+	    let new_line =
+	      if rem_inc_only then
+		(remove_inc line1) ^ "\n"
+	      else replace_in_string
+		     dico_content
+		     ~keep:keep_dic
+		     (if inc then replace_include_in_string ~keep:keep_inc ~prefix:prefix line1 else line1) ^ "\n" in
 	    output_string dst_oc new_line
 	  done
 	with End_of_file -> (flush dst_oc; close_in src_ic; close_out dst_oc));
@@ -109,13 +120,18 @@ let replace_in_file dico_filename dico_content src dst =
   else if FileUtil.(test Is_dir (FilePath.make_filename [src])) then
     FileUtil.mkdir ~parent:true dst_translated
 
-let copy_and_replace dico_filename dico_content src_dir dst_dir =
+let copy_and_replace dico_filename dico_content ?prefix ?keep_dic ?inc ?keep_inc ?rem_inc_only src_dir dst_dir =
   (* Iterate on all file in folder and copy them in dst_dir *)
   if FileUtil.(test Is_dir src_dir) then
     List.iter
       (fun file -> replace_in_file
 		     dico_filename
 		     dico_content
+		     ?prefix
+		     ?keep_dic
+		     ?keep_inc
+		     ?inc
+		     ?rem_inc_only
 		     file
 		     FilePath.(reparent
 				 (make_absolute (FileUtil.pwd ()) (dirname src_dir))
@@ -130,16 +146,22 @@ let copy_and_replace dico_filename dico_content src_dir dst_dir =
   else if FileUtil.(test Is_file src_dir) then
     if FileUtil.(test Is_dir dst_dir) then
       replace_in_file
-	dico_filename dico_content
+	dico_filename
+	dico_content
+	?prefix
+	?keep_dic
+	?keep_inc
+	?inc
+	?rem_inc_only
 	src_dir
 	(FilePath.(concat (make_filename [dst_dir]) (basename src_dir) ))
-    else replace_in_file dico_content dico_content src_dir dst_dir
+    else replace_in_file dico_content dico_content ?prefix ?keep_dic ?keep_inc ?inc ?rem_inc_only src_dir dst_dir
 
 (* Same as copy_and_replace but copy the files
    which are IN the folder, not the folder itself *)
-let copy_and_replace_inside dico_filename dico_content src_dir dst_dir =
+let copy_and_replace_inside dico_filename dico_content ?prefix ?keep_dic ?inc ?keep_inc ?rem_inc_only src_dir dst_dir =
   FileUtil.mkdir ~parent:true dst_dir;
   List.iter
     (fun src_file ->
-     copy_and_replace dico_filename dico_content src_file dst_dir)
+     copy_and_replace dico_filename dico_content ?prefix ?keep_dic ?keep_inc ?inc ?rem_inc_only src_file dst_dir)
     FileUtil.(ls src_dir)
