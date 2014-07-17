@@ -16,7 +16,9 @@ Executable "phluor_tools"
     str,
     fileutils,
     unix,
-    str
+    str,
+    batteries,
+    settings
     
 
 Executable install_data

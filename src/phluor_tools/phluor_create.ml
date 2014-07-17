@@ -1,6 +1,7 @@
 open Printf
 type project = {mutable name: string}
-
+let (//) = Filename.concat
+  
 exception Bad_answer
 
 let letter_alphanum_reg = "^[a-zA-Z][0-9a-zA-Z_]*$"
@@ -35,7 +36,7 @@ let interactive () =
   (* ===== Name ===== *)
   let project_name = ask "What is the name of the project ?"
 		 ~regexp:(letter_alphanum_reg, "Please use only letters, numbers and underscores, and begin with a letter.")in
-  dico := [("PROJECT_NAME", project_name)];
+  dico := [("___PROJ_NAME___", project_name)];
 
   (* ===== Templates ==== *)
   let templates_folder = FilePath.make_filename [Phluor_default.data_folder; "templates"] in
@@ -68,22 +69,10 @@ let interactive () =
   printf "You chose the template %s\n" template_name;
 
   printf "Replacement words...\n";
-  let dico_file = open_in (FilePath.make_filename [templates_folder; template_name; "replacement.phluor"]) in
-  (try
-      let i = ref 0 in
-      while true do
-	incr i;
-	let line = input_line dico_file in
-	match Str.split (Str.regexp "|") line with
-	  [word; question] -> dico := (remove_spaces word,
-				       ask (remove_trailing_spaces question))
-				      :: (!dico)
-	| [word; question; default] -> dico := (remove_spaces word, ask ~default:default ((remove_trailing_spaces question) ^ " (Default : " ^ default ^ ")")) :: (!dico)
-	| [] -> ()
-	| _ -> (printf "The line %d : \"%s\" has an error... (2-3 fields separated with '|')\n" !i line; exit 1)
-      done;
-    with End_of_file -> close_in dico_file);
-			     
+  dico := !dico @
+	    (Phluor_file_operation.dico_of_question_file
+	       (templates_folder // template_name // "replacement.phluor"));
+  
   printf "%s --> %s\n" template_folder ("./" ^ template_name);
   Phluor_file_operation.copy_and_replace_inside !dico !dico template_folder ("./" ^ project_name);
   

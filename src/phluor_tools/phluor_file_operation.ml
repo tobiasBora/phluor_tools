@@ -1,7 +1,9 @@
+open Printf
+let (//) = Filename.concat
+
 let remove_trailing_spaces str =
   Str.global_replace (Str.regexp "^[ \t]*") "" str
   |> Str.global_replace (Str.regexp "[ \t]*$") "" 
-
 
 let string_of_file filename =
   let ic = open_in filename in
@@ -13,6 +15,17 @@ let string_of_file filename =
     with _ -> close_in ic);
   !str
 
+(** Go in the first parent folder containing a file 'filename' *)
+let go_root filename =
+  let rec aux last_working_dir =
+    let cwd = Sys.getcwd () in
+    if last_working_dir = cwd then
+      failwith "I can't find any root folder"
+    else
+      if FileUtil.(test Is_file filename) then ()
+      else (Sys.chdir ".."; aux cwd)
+  in aux ""
+   
 (** Replace in a string all words in the dico with it's "translation". If keep is true then keep the %%WORD%% after the replacement.
 replace_in_string : (string * string) list -> string *)
 let rec replace_in_string ?(sep1="%%") ?(sep2="%%") ?(keep=false) dico str =
@@ -69,8 +82,60 @@ let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
     aux []
   with Sys_error e ->
     if avoid_error then (Printf.printf "Warning : %s\n" e; [])
-    else (Printf.printf "hi";raise (Sys_error e))
-	       
+    else (raise (Sys_error e))
+
+exception Bad_answer
+(* Regexp : string of regexp * error_message : string option * string *)
+let ask_one ?default ?regexp question =
+  Printf.printf "%s\n   " question;
+  match (read_line (), default, regexp) with
+    ("", None, _) -> raise Bad_answer
+  | ("", Some def, _) -> def
+  | (s, _, None) -> s
+  | (s, _, (Some (reg, error_msg)))
+       when not (Str.string_match (Str.regexp reg) s 0)-> failwith error_msg
+  | (s, _,_) -> s
+
+let rec ask ?default ?regexp question =
+  try ask_one ?default ?regexp question
+  with
+    Failure str -> (printf "%s\n" str; ask ?default ?regexp question)
+  | _ -> (printf "You have to fill this field.\n"; ask ?default ?regexp question)
+
+	   
+(** Convert a question file (separate with '|', see doc for more details) in dico. Comments begins with # *)
+let dico_of_question_file ?(comment=true) ?(sep="|") ?(avoid_error=false) filename =
+  try
+    let ic = open_in filename in
+    let i = ref 0 in
+    let rec aux acc =
+      try
+	let line = input_line ic in
+	incr i;
+	if comment && line.[0] = '#' then aux acc
+	else
+	  let spl = Str.split (Str.regexp sep) line in
+	  match spl with
+	    [word;question] ->
+	    aux ((remove_trailing_spaces word,
+		 ask (remove_trailing_spaces question))
+		::acc)
+	  | [word; question; default] ->
+	     aux ((remove_trailing_spaces word,
+		   ask ~default
+		       ((remove_trailing_spaces question) ^
+			  " (Default : " ^ default ^ ")"))
+		  :: acc)
+	  | [] -> aux acc
+	  | _ -> failwith (Printf.sprintf "An error occured on line %d : '%s'" (!i) line)
+      with Failure s -> (close_in ic; failwith s)
+	 | End_of_file -> (close_in ic; acc)
+    in
+    aux []
+  with Sys_error e ->
+    if avoid_error then (Printf.printf "Warning : %s\n" e; [])
+    else (raise (Sys_error e))
+
 let replace_in_file dico_filename dico_content ?(prefix="") ?(keep_dic=false) ?(inc=false) ?(keep_inc=false) ?(rem_inc_only=false) src dst =
   (* Replace the destination name *)
   let dst_translated = replace_in_string dico_filename dst in

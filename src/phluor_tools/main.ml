@@ -19,8 +19,9 @@ to speed up the creation of a website based on Eliom. The available options are 
   let tmp_arg = ref [] in
   let args =
     [
-      ("-create_project", Arg.Unit (fun () -> Phluor_create.interactive (); exit 0), " Create a new project.");
+      ("-create-project", Arg.Unit (fun () -> Phluor_create.interactive (); exit 0), " Create a new project.");
       ("-dir", Arg.Unit (fun () -> printf "%s\n" Phluor_default.data_folder; exit 0), " Display.");
+      ("-add-brick",Arg.String (fun brick -> Phluor_add_brick.add_brick brick; exit 0), " Create a new project.");
 
       
       ("-copy-file", Arg.(Tuple [Set_string copy_file_src; Set_string copy_file_dst]), " Choose the file to copy (couple 'src dst').");
