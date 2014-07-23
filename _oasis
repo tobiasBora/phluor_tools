@@ -16,7 +16,6 @@ Executable "phluor_tools"
     str,
     fileutils,
     unix,
-    str,
     batteries,
     settings
     
@@ -25,7 +24,7 @@ Executable install_data
   Path:		src/phluor_tools/
   BuildTools: ocamlbuild
   MainIs:	install_data.ml
-  BuildDepends:	fileutils, unix, str
+  BuildDepends:	fileutils, unix, str, settings
   Install:	false
 
 PostInstallCommand: $install_data $datadir $pkg_name data

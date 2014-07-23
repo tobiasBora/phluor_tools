@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: e47dda02b6834585c33c68d5153d6871) *)
+(* DO NOT EDIT (digest: 24350b12791ce56d1bdd7f59ac03ddc7) *)
 
 This is the INSTALL file for the phluor_tools distribution.
 
@@ -15,7 +15,7 @@ In order to compile this package, you will need:
 * findlib
 * fileutils
 * batteries for executable phluor_tools
-* settings for executable phluor_tools
+* settings
 
 Installing
 ==========

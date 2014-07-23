@@ -1,0 +1,56 @@
+* What is Phluor ?
+Phluor is a project which wants to make easier the creation of a website based on different modules ("bricks") working together.
+
+** The philosophy
+Phluor is mainly based on these bricks. The idea is to have a modular system : a brick must be easy to create, each brick can use others bricks or Ocaml modules as dependancies to work. A brick must be really easy to install: copying the brick in the =src/= folder should be enough.
+
+Moreover I'm sure that the documentation is one of the main point of a project, so each brick should have a good documentation and should be easy to use.
+
+* What can I do with Phluor right now ?
+For the moment the base skeletton works. Specifically, here are the working functions :
+- Compilation of several libraries in server and client part
+- Libraries can have dependances with other libraries
+- The dependances are auto-detected with an automatic recursive dependance search
+- All the libraries needed are included (in the right order) in the configuration file which is used by ocsigenserver
+- Each library can have a static folder where it can put pictures, files...
+- Each library has a part (especially used by service definition) which is build before others libraries and can be include in them very easily
+- The server configuration file is autogenerate and can be configurate. Moreover each library can write in this file where it want with a powerful system of anchor (see doc for more details)
+- The server can be launch at the end of the compilation or when you want with a simple command
+
+If you want more details please read the doc in the =doc= folder, especially =doc/00_Quickstart.org=.
+
+* I like that, where could I learn how to use it ?
+Just go in the =doc= folder, there is lot's of documentation (It's easier to read them with org-mode enabled (emacs), but you can read them with any text editor).
+
+Here is the name convention :
+- 0xx -> Doc for a classic user
+-- 00x -> Basic things to know
+-- 01x -> Things related with the use of bricks
+- 1xx -> Doc for programmers
+
+* What should be done now ?
+Here are some ideas or small tasks to do to improve this program :
+
+In the phluor_basic templace
+- Give the possibility to "pack" the modules in a brick in one module in order to avoid colision between several bricks. (play with the -pack/-for-pack option ?)
+- Clean Makefile
+- Documentation
+- Find an easy and powerfull way to use translation in a website (for example with gettext, but I think an other way should be use for client part)
+- Deal with database (in the ideal a general bricks which could choose several database backend, and there should exists a way to create/update a local database for small configuration, such as a local postgresql one)
+- Create a "persistant" folder in the static dir where the libraries could upload files while the server is running, and keep it even when the server is recompiled (usually all bricks files are cleaned when the server is recompiled)
+
+Brick idea :
+- A Lorem Ipsum brick, giving an easy access to long texts (client and server part)
+- Editor : could be used by other bricks to display some advanced editor such as [[http://www.tinymce.com/][Tinymce]], [[http://elrte.org/demo][elRTE]], textarea with an help option...
+- A blog brick (maybe the translation/database problem should be solve first)
+- A wiki brick (same as above)
+- A website brick (same as above)
+- A forum brick (same as above)
+
+
+In phluor_tools
+- Add a way to auto-add some bricks, from the data folder or from the internet (Github for example)
+- Documentation
+
+* I want to help !
+For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm quite new with lot's of advanced functions so I'm not sure that everything I do is really proper but I try to be as clean as possible, even if it's possible that some part of the code must be rewritten. I tried at the beginning to base my project on oasis but the functions I found was to restrictive for this project.

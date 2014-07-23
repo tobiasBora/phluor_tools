@@ -53,3 +53,4 @@ to speed up the creation of a website based on Eliom. The available options are 
       Printf.printf "You need to choose an option.\n%s" (Arg.usage_string (Arg.align !tmp_arg) message);
 
   with e -> Printf.printf "Warning : %s\n" (Printexc.to_string e)
+

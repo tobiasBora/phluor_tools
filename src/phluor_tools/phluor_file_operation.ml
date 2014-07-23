@@ -1,10 +1,20 @@
 open Printf
 let (//) = Filename.concat
 
+(* ============================= *)
+(* ===== General functions ===== *)
+(* ============================= *)
+
+let remove_spaces str = Str.global_replace (Str.regexp "[ \t]+") "" str
 let remove_trailing_spaces str =
   Str.global_replace (Str.regexp "^[ \t]*") "" str
   |> Str.global_replace (Str.regexp "[ \t]*$") "" 
 
+(* =================================== *)
+(* ===== File content operations ===== *)
+(* =================================== *)
+
+(* TODO : use Batteries *)
 let string_of_file filename =
   let ic = open_in filename in
   let str = ref "" in
@@ -14,17 +24,7 @@ let string_of_file filename =
       done
     with _ -> close_in ic);
   !str
-
-(** Go in the first parent folder containing a file 'filename' *)
-let go_root filename =
-  let rec aux last_working_dir =
-    let cwd = Sys.getcwd () in
-    if last_working_dir = cwd then
-      failwith "I can't find any root folder"
-    else
-      if FileUtil.(test Is_file filename) then ()
-      else (Sys.chdir ".."; aux cwd)
-  in aux ""
+			
    
 (** Replace in a string all words in the dico with it's "translation". If keep is true then keep the %%WORD%% after the replacement.
 replace_in_string : (string * string) list -> string *)
@@ -37,6 +37,7 @@ let rec replace_in_string ?(sep1="%%") ?(sep2="%%") ?(keep=false) dico str =
 			(Str.regexp (sep1 ^ w1 ^ sep2))
 			(w2 ^ (if keep then sep1 ^ w1 ^ sep2 else ""))
 			str)
+
 		     
 (** Replace all occurences of %%INC(myfile)%% with the content of prefix/myfile (the '/' should be in prefix if needed) *)
 let rec replace_include_in_string ?(sep1="%%INC(") ?(sep2=")%%") ?(prefix="") ?(keep=false) str =
@@ -59,7 +60,15 @@ let remove_inc ?(sep1="%%") ?(sep2="%%") str =
     (Str.regexp (sep1 ^ ".*" ^ sep2))
     ""
     str
-    
+(* ========================= *)
+(* ===== Generate dico ===== *)
+(* ========================= *)
+exception Bad_answer
+
+(* ----------------------------------- *)
+(* ----- From a simple dico file ----- *)
+(* ----------------------------------- *)
+
 (** Convert a file (separate with '=') in dico. Comments begins with # *)
 let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
   try
@@ -81,10 +90,13 @@ let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
     in
     aux []
   with Sys_error e ->
-    if avoid_error then (Printf.printf "Warning : %s\n" e; [])
+    if avoid_error then []
     else (raise (Sys_error e))
 
-exception Bad_answer
+(* ------------------------------------- *)
+(* ----- From a question dico file ----- *)
+(* ------------------------------------- *)
+
 (* Regexp : string of regexp * error_message : string option * string *)
 let ask_one ?default ?regexp question =
   Printf.printf "%s\n   " question;
@@ -136,6 +148,11 @@ let dico_of_question_file ?(comment=true) ?(sep="|") ?(avoid_error=false) filena
     if avoid_error then (Printf.printf "Warning : %s\n" e; [])
     else (raise (Sys_error e))
 
+(* ==================================== *)
+(* ===== File operation (copy...) ===== *)
+(* ==================================== *)
+
+	   
 let replace_in_file dico_filename dico_content ?(prefix="") ?(keep_dic=false) ?(inc=false) ?(keep_inc=false) ?(rem_inc_only=false) src dst =
   (* Replace the destination name *)
   let dst_translated = replace_in_string dico_filename dst in
@@ -230,3 +247,78 @@ let copy_and_replace_inside dico_filename dico_content ?prefix ?keep_dic ?inc ?k
     (fun src_file ->
      copy_and_replace dico_filename dico_content ?prefix ?keep_dic ?keep_inc ?inc ?rem_inc_only src_file dst_dir)
     FileUtil.(ls src_dir)
+
+
+(* ============================== *)
+(* ===== Project operations ===== *)
+(* ============================== *)
+
+(** Go in the first parent folder containing a file 'filename' *)
+let go_root filename =
+  let rec aux last_working_dir =
+    let cwd = Sys.getcwd () in
+    if last_working_dir = cwd then
+      failwith "I can't find any root folder"
+    else
+      if FileUtil.(test Is_file filename) then ()
+      else (Sys.chdir ".."; aux cwd)
+  in aux ""
+
+(** Each template/brick is in a repositories. This function gives the list of repositories, the user specific folder in first position *)
+let repo_list =
+  (try
+      match Settings.user_data_dir ("phluor_tools" // "repo") with
+	Some path -> FileUtil.ls path
+      | None -> raise Not_found
+    with _ -> []
+  ) @
+    (try
+	FileUtil.ls (Phluor_default.data_folder // "repo")
+      with _ -> []
+    )
+
+      
+let get_suffix_of_obj obj_type =
+  match obj_type with
+    `Brick -> "bricks"
+  | `Template -> "templates"
+  
+(** This function gives the path to an object (bricks/templates) *)
+let get_path_obj obj_type name =
+  let suffix = get_suffix_of_obj obj_type in
+  try
+    repo_list
+    |> List.map (fun repo -> repo // suffix // name)
+    |> List.find (FileUtil.(test Is_dir))
+  with Not_found -> failwith (Printf.sprintf "The folder \"%s\" isn't present in the repositories." name)
+			     
+(** This function gives a list of all objects (bricks or templates) *)
+let get_list_obj obj_type =
+  let suffix = get_suffix_of_obj obj_type in
+  repo_list
+  |> List.map (fun repo -> repo // suffix)
+  |> List.map (fun path -> FileUtil.(ls path
+				     |> filter Is_dir
+				     |> List.map
+					  (FilePath.make_relative path)))
+  |> List.concat
+
+let choose_in_list l =
+  let nb_el = List.length l in
+  Printf.printf "Please choose an element:\n";
+  let display_list l =
+    List.iteri (fun i s -> printf "%d - %s\n" (i+1) s) l in
+  let rec aux () =
+    try
+      display_list l;
+      let n = read_int () in
+      if n < 1 || n > nb_el then
+	failwith "The number is not in the good range"
+      else n
+    with Failure e -> printf "%s\n" e; aux ()
+       | _ -> printf "You must give a number.\n"; aux ()
+  in
+  ((aux ()) - 1)
+  |> List.nth l
+
+
