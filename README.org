@@ -32,12 +32,13 @@ Here is the name convention :
 Here are some ideas or small tasks to do to improve this program :
 
 In the phluor_basic templace
+- Auto-copy config files in config/... AND KEEP THE OLD CONF
+- Write interface files for readability
 - Give the possibility to "pack" the modules in a brick in one module in order to avoid colision between several bricks. (play with the -pack/-for-pack option ?)
-- Clean Makefile
-- Documentation
+- Documentation (options)
 - Find an easy and powerfull way to use translation in a website (for example with gettext, but I think an other way should be use for client part)
 - Deal with database (in the ideal a general bricks which could choose several database backend, and there should exists a way to create/update a local database for small configuration, such as a local postgresql one)
-- Create a "persistant" folder in the static dir where the libraries could upload files while the server is running, and keep it even when the server is recompiled (usually all bricks files are cleaned when the server is recompiled)
+- Create a brick which deals with files : it must be possible to upload files in the persistant folder www/static/var/<brick name>/ (which is a symlink to var/)
 
 Brick idea :
 - A Lorem Ipsum brick, giving an easy access to long texts (client and server part)
@@ -49,7 +50,10 @@ Brick idea :
 
 
 In phluor_tools
-- Add a way to auto-add some bricks, from the data folder or from the internet (Github for example)
+- Add a way to auto-add some bricks, from the data folder or from the internet (Github, tar.gz for example)
+- Check that Ocaml libs are installed, and why not linux programs (API findlib : http://projects.camlcity.org/projects/dl/findlib-1.5.2/doc/ref-html/c1040.html)
+- Add a way to remove a lib --> Remove conf, brick code and in bricks_depends.txt
+- Add a way to easily package a brick --> The structure is quite easy to package by hand, it should be hard
 - Documentation
 
 * I want to help !

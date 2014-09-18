@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 9fa2a993b9d6a661387b84ea5f404d45)
+# DO NOT EDIT (digest: 31f27fddf8cfb92225f767ab71246083)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -14,19 +14,16 @@
 "_darcs": -traverse
 "_darcs": not_hygienic
 # Executable phluor_tools
-"src/phluor_tools/main.byte": pkg_batteries
+"src/phluor_tools/main.byte": pkg_cmdliner
 "src/phluor_tools/main.byte": pkg_fileutils
-"src/phluor_tools/main.byte": pkg_settings
 "src/phluor_tools/main.byte": pkg_str
 "src/phluor_tools/main.byte": pkg_unix
-<src/phluor_tools/*.ml{,i}>: pkg_batteries
+<src/phluor_tools/*.ml{,i}>: pkg_cmdliner
 # Executable install_data
 "src/phluor_tools/install_data.byte": pkg_fileutils
-"src/phluor_tools/install_data.byte": pkg_settings
 "src/phluor_tools/install_data.byte": pkg_str
 "src/phluor_tools/install_data.byte": pkg_unix
 <src/phluor_tools/*.ml{,i}>: pkg_fileutils
-<src/phluor_tools/*.ml{,i}>: pkg_settings
 <src/phluor_tools/*.ml{,i}>: pkg_str
 <src/phluor_tools/*.ml{,i}>: pkg_unix
 # OASIS_STOP

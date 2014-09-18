@@ -1,6 +1,7 @@
 open Printf
 type project = {mutable name: string}
 module F = Phluor_file_operation
+module S = Sequence
 let (//) = Filename.concat
   
 exception Bad_answer
@@ -24,18 +25,17 @@ let interactive () =
   let template_list = F.(get_list_obj `Template) in
   let template_name = F.choose_in_list template_list in
   let template_folder = F.(get_path_obj `Template template_name) in
-  
   printf "You chose the template %s\n" template_name;
   printf "Replacement words...\n";
   dico := !dico @
 	    (F.dico_of_question_file
 	       ~avoid_error:true
-	       (template_folder // "replacement.qdico"));
+	       (template_folder // "package" // "replacement.qdico"));
 
   F.copy_and_replace_inside
     !dico
     !dico
-    (template_folder // "template")
+    (template_folder)
     ("./" // project_name);
 
   printf "The project %s has copied generated in ./%s\n"
@@ -44,10 +44,11 @@ let interactive () =
   
   printf "-- Installing bricks...\n";
   Sys.chdir project_name;
-  (try BatFile.lines_of (template_folder // "brick_depends.phluor")
-   with _ -> BatEnum.empty ()) 
-  |> BatEnum.iter Phluor_add_brick.add_brick;
 
+  Easyfile.seq_of_file_no_err
+    (template_folder // "package" // "brick_depends.txt")
+  |> S.iter (Phluor_add_brick.add_brick ~register:`No); (* If one wants to register a brick in the template, just edit the file in the template. *)
+  
   printf "The project %s has been generated in ./%s\n"
 	 project_name
 	 project_name
