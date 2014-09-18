@@ -61,4 +61,4 @@ In phluor_tools
 - Documentation
 
 * I want to help !
-For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm an auto-didacte so I may do some things with a bad methods but I try to be as clean and proper as possible. If you want to join the project, you can contact me from github, on IRC (tobiasBora, often on #ocsigen, #ocaml...), or with my email : tobias . bora <arobase> gmail . com
+For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm an auto-didacte so I may do some things with a bad methods but I try to be as clean and proper as possible. If you want to join the project, you can contact me from github, on IRC (tobiasBora, often on #ocsigen, #ocaml...), or with my email : tobias . bora <at> gmail . com
