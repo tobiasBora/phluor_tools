@@ -1,0 +1,169 @@
+# This code in supposed to be including in any brick to make it compile
+
+# ========================================
+# Shoudn't be edited by user
+# ========================================
+
+# The output compiled files must be in subdirs _server and _client
+M_SERVER_INCLUDE=$(SERVER_INCLUDE_DIRS:%=-I %) $(SERVER_ONLY_DEPENDS:%=-I $(SRC)%/_server) $(CLIENT_SERVER_DEPENDS:%=-I $(SRC)%/_server)
+M_CLIENT_INCLUDE=$(CLIENT_INCLUDE_DIRS:%=-I %) $(CLIENT_ONLY_DEPENDS:%=-I $(SRC)%/_client) $(CLIENT_SERVER_DEPENDS:%=-I $(SRC)%/_client)
+
+PWD=$(shell pwd)
+
+
+ifeq ($(strip $(SERVER_PACKAGES)),)
+M_SERVER_PACKAGES:=
+else
+M_SERVER_PACKAGES:= -package $(SERVER_PACKAGES)
+endif
+
+ifeq ($(strip $(CLIENT_PACKAGES)),)
+M_CLIENT_PACKAGES:=
+else
+M_CLIENT_PACKAGES:= -package $(CLIENT_PACKAGES)
+endif
+
+all: depends hello server client _dep _dep_lib
+
+hello:
+	@echo "=============================="
+	@echo "=== Building $(BRICK_NAME)"
+	@echo "=============================="
+
+##----------------------------------------------------------------------
+## Some code are inspired from code of the default eliom-distillery template
+
+# Use `eliomdep -sort' only in OCaml>4
+ifeq ($(shell ocamlc -version|cut -c1),4)
+eliomdep=$(shell $(ELIOMDEP) $(1) -sort $(2) $(filter %.eliom %.ml,$(3))))
+else
+eliomdep=$(3)
+endif
+objs=$(patsubst %.ml,$(1)/%.$(2),$(patsubst %.eliom,$(1)/%.$(2),$(filter %.eliom %.ml,$(3))))
+depsort=$(call objs,$(1),$(2),$(call eliomdep,$(3),$(4),$(5)))
+
+# Compile the server and client brick depends
+depends:
+	@echo "--- [$(BRICK_NAME)] Building dependencies ---"
+	@echo "- [$(BRICK_NAME)] Dependencies : client and server part"
+	$(foreach dep, $(CLIENT_SERVER_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
+	@echo "- [$(BRICK_NAME)] Dependencies : server part"
+	$(foreach dep, $(SERVER_ONLY_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
+	@echo "- [$(BRICK_NAME)] Dependencies : client part"
+	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
+
+##----------------------------------------------------------------------
+## Server side compilation
+
+${ELIOM_TYPE_DIR}/%.type_mli: %.eliom
+	${ELIOMC} $(M_SERVER_INCLUDE) -infer ${M_SERVER_PACKAGES} $<
+
+_exec:
+	mkdir _exec
+
+_exec/server_part.cma: $(call objs,$(ELIOM_SERVER_DIR),cmo,$(SERVER_SOURCES)) | _exec/
+	${ELIOMC} -a $(M_SERVER_INCLUDE) -o $@ $(GENERATE_DEBUG) \
+          $(call depsort,$(ELIOM_SERVER_DIR),cmo,-server,$(M_SERVER_PACKAGES),$(SERVER_SOURCES))
+
+_exec/server_part.cmxa: $(call objs,$(ELIOM_SERVER_DIR),cmx,$(SERVER_SOURCES)) | _exec/
+	${ELIOMOPT} -a $(M_SERVER_INCLUDE) -o $@ $(GENERATE_DEBUG) \
+          $(call depsort,$(ELIOM_SERVER_DIR),cmx,-server,$(M_SERVER_PACKAGES),$(SERVER_SOURCES))
+
+%.cmxs: %.cmxa
+	$(ELIOMOPT) -shared -linkall $(M_SERVER_INCLUDE) -o $@ $(GENERATE_DEBUG) $<
+
+${ELIOM_SERVER_DIR}/%.cmi: %.mli
+	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+
+${ELIOM_SERVER_DIR}/%.cmi: %.eliomi
+	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+
+${ELIOM_SERVER_DIR}/%.cmo: %.ml
+	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+${ELIOM_SERVER_DIR}/%.cmo: %.eliom
+	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+
+${ELIOM_SERVER_DIR}/%.cmx: %.ml
+	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+${ELIOM_SERVER_DIR}/%.cmx: %.eliom
+	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
+
+server: echo_server _exec/server_part.cma
+
+echo_server:
+	@echo "--- [$(BRICK_NAME)] Building server part"
+
+##----------------------------------------------------------------------
+## Library dependencies
+
+DEPSDIR := _deps
+
+include .depend
+
+.depend: $(patsubst %,$(DEPSDIR)/%.server,$(SERVER_SOURCES)) $(patsubst %,$(DEPSDIR)/%.client,$(CLIENT_SOURCES))
+	cat $^ > $@
+
+$(DEPSDIR)/%.server: % | $(DEPSDIR)
+	$(ELIOMDEP) -server $(SERVER_INC) $< > $@
+
+$(DEPSDIR)/%.client: % | $(DEPSDIR)
+	$(ELIOMDEP) -client $(CLIENT_INC) $< > $@
+
+$(DEPSDIR):
+	mkdir $@
+
+##----------------------------------------------------------------------
+## Client side compilation
+
+CLIENT_OBJS := $(filter %.eliom %.ml, $(CLIENT_SOURCES))
+CLIENT_OBJS := $(patsubst %.eliom,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
+CLIENT_OBJS := $(patsubst %.ml,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
+
+${ELIOM_CLIENT_DIR}/%.cmi: %.mli
+	${JS_OF_ELIOM} -c ${M_CLIENT_INCLUDE} ${M_CLIENT_PACKAGES} $(GENERATE_DEBUG) $<
+
+${ELIOM_CLIENT_DIR}/%.cmo: %.eliom
+	${JS_OF_ELIOM} -c ${M_CLIENT_INCLUDE} ${M_CLIENT_PACKAGES} $(GENERATE_DEBUG) $<
+${ELIOM_CLIENT_DIR}/%.cmo: %.ml
+	${JS_OF_ELIOM} -c ${M_CLIENT_INCLUDE} ${M_CLIENT_PACKAGES} $(GENERATE_DEBUG) $<
+
+${ELIOM_CLIENT_DIR}/%.cmi: %.eliomi
+	${JS_OF_ELIOM} -c ${M_CLIENT_INCLUDE} ${M_CLIENT_PACKAGES} $(GENERATE_DEBUG) $<
+
+client: echo_client $(call objs,$(ELIOM_CLIENT_DIR),cmo,$(CLIENT_SOURCES)) | _client/
+
+_client:
+	mkdir _client
+
+echo_client:
+	@echo "--- [$(BRICK_NAME)] Building client part"
+
+##----------------------------------------------------------------------
+## Brick dependancies
+# It build a brick dependencies file (primitive dependencies at the end) containing ALL dependencies used by this module.
+_dep: $(CLIENT_SERVER_DEPENDS:%=$(SRC)%/_dep) $(CLIENT_ONLY_DEPENDS:%=$(SRC)%/_dep) $(SERVER_ONLY_DEPENDS:%=$(SRC)%/_dep)
+	@echo "--- [$(BRICK_NAME)] Writing dependencies"
+	touch _dep
+	mv _dep ._dep.bak
+	touch _dep
+	$(foreach brick, $(CLIENT_SERVER_DEPENDS) $(CLIENT_ONLY_DEPENDS) $(SERVER_ONLY_DEPENDS), echo $(brick) >> _dep && cat $(SRC)$(brick)/_dep >> _dep && ) true
+
+# Same thing but _dep_lib has the primitive dependencies on the top, and only the current .cmo of the current brick are listed
+_dep_lib:
+	echo $(call depsort,,cmo,-server,$(M_CLIENT_PACKAGES),$(CLIENT_SOURCES)) | sed -e 's/ /\n/g' | awk '{print "src/$(BRICK_NAME)/$(ELIOM_CLIENT_DIR)"$$0}' > _dep_lib
+
+clean:
+	rm -rf _client/ _server/ _dep _dep_lib
+
+# Clean dependencies too !
+clean_all: clean
+	@echo "--- [$(BRICK_NAME)] Cleaning dependencies ---"
+	@echo "- [$(BRICK_NAME)] Cleaning dependencies : client and server part"
+	$(foreach dep, $(CLIENT_SERVER_DEPENDS), cd $(SRC) ; cd $(dep) ; make clean_all ; cd $(PWD) ;) exit 0
+	@echo "- [$(BRICK_NAME)] Cleaning dependencies : server part"
+	$(foreach dep, $(SERVER_ONLY_DEPENDS), cd $(SRC) ; cd $(dep) ; make clean_all ; cd $(PWD) ;)  exit 0
+	@echo "- [$(BRICK_NAME)] Cleaning dependencies : client part"
+	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) ; cd $(dep) ; make clean_all ; cd $(PWD) ;) exit 0
+
+
+PHONY: all hello depends server echo_server client echo_client clean clean_all

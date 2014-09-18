@@ -1,0 +1,25 @@
+* The differents file format
+** Question dico files (.qdico)
+These files should have this structure :
+#+BEGIN_SRC text
+# comment
+___word1___ | Question to ask for getting word1 | options
+___word2___ | Question to ask for getting word2 | options
+___word3___ | Question to ask for getting word2 | Default value | options
+#+END_SRC
+And all occurences of %%___word1___%%, %%___word2___%%... will be replaced by the result of the question asked to the user.
+
+There is by default only %%___PROJ_NAME___%% which is remplaced by the project name (in template mode).
+
+/!\ Naming convention : please in order to avoid any collision with dico file which should be used inside the template itself (if you don't want to replace %%NAME%%% for exemple) all the template name must begin with 3 underscores (like this : "___yourvar___") when it must be replaced during the template copy, and one underscoe when it must be replaced during the brick copy, while the 0 underscores entries should be replaced only during the configurations of the server during compilation.
+
+
+** Dico file (.dico)
+These files have the following structure :
+#+BEGIN_SRC makefile
+# comment
+WORD1=REPLACEMENT1
+WORD2=REPLACEMENT3
+WORD3=REPLACEMENT3
+#+END_SRC
+They are often used to configure the project (it avoids to ask to the user the new configuration every time it's needed with .qdico files). They are too included in Makefile to configure some points, so make sure to keep a structure usable in Makefile.

@@ -1,0 +1,1 @@
+Kernel is a basic bricks which is usefull to provide a way to access to the application. To use it in your code, please include the brick "System/Kernel" and call in your .eliom files "Kernel.Appli" to have an access to the main application.

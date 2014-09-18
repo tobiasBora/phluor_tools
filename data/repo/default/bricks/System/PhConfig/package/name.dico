@@ -1,0 +1,3 @@
+BRICK_NAME=System/PhConfig
+# Useless for the moment
+BRICK_ONE_WORD=Kernel

@@ -1,0 +1,32 @@
+* What is Phluor ?
+Phluor is a project which wants to make easier the creation of a website based on different modules ("bricks") working together.
+
+** The philosophy
+Phluor is mainly based on these bricks. The idea is to have a modular system : a brick must be easy to create, each brick can use others bricks or Ocaml modules as dependancies to work. A brick must be really easy to install: copying the brick in the =src/= folder should be enough.
+
+Moreover I'm sure that the documentation is one of the main point of a project, so each brick should have a good documentation and should be easy to use.
+
+* What can I do with Phluor right now ?
+For the moment the base skeletton works. Specifically, here are the working functions :
+- Compilation of several libraries in server and client part
+- Libraries can have dependances with other libraries
+- The dependances are auto-detected with an automatic recursive dependance search
+- All the libraries needed are included (in the right order) in the configuration file which is used by ocsigenserver
+- Each library can have a static folder where it can put pictures, files...
+- Each library has a part (especially used by service definition) which is build before others libraries and can be include in them very easily
+- The server configuration file is autogenerate and can be configurate. Moreover each library can write in this file where it want with a powerful system of anchor (see doc for more details)
+- The server can be launch at the end of the compilation or when you want with a simple command
+
+If you want more details please read the doc in the =doc= folder, especially =doc/00_Quickstart.org=.
+
+* I like that, where could I learn how to use it ?
+Just go in the =doc= folder, there is lot's of documentation (It's easier to read them with org-mode enabled (emacs), but you can read them with any text editor).
+
+Here is the name convention :
+- 0xx -> Doc for a classic user
+-- 00x -> Basic things to know
+-- 01x -> Things related with the use of bricks
+- 1xx -> Doc for programmers
+
+* I want to help !
+For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm quite new with lot's of advanced functions so I'm not sure that everything I do is really proper but I try to be as clean as possible, even if it's possible that some part of the code must be rewritten. I tried at the beginning to base my project on oasis but the functions I found was to restrictive for this project.

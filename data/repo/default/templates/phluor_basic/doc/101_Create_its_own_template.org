@@ -1,0 +1,46 @@
+* How to create it's own template 2.0
+Every template must have the following structure:
+
+└── <template_name>
+    ├── doc/
+    ├── package
+    │   ├── brick_depends.txt
+    │   ├── info.dico
+    │   ├── lib_depends.txt
+    │   └── replacement.qdico
+    ├── src
+    ├── static
+    ├── var
+    ├── var_private
+    └── ... other files usefull for the template
+    
+** File description
+*** doc/
+The documentation
+*** package
+This folder contains some informations related to the way to install the template. They are quite basic for a template.
+**** package/brick_depends.txt
+A list (one per line) of all bricks that need to be installed after the installation of the template.
+**** package/info.dico
+A dico file, containing some usefull informations such as
+- TEMPLATE : The name of the template
+- VERSION : The version of the template
+And you can add some others usefull informations related to the whole project structure.
+**** package/lib_depends.txt
+A list (one per line) of all ocaml libraries that need to be installed after the installation of the template. [NOT IMPLEMENTED YET]
+**** package/replacement.qdico
+A question dico file which is used to configure the copy of the template. Each file will be copied in the project after replacing all occurences of the words present in the .qdico file. 
+
+*** src
+The folder where bricks will be copied
+
+** Files specific to the basic templace
+*** static
+A folder which contains the static files, usually available at http://mysite.com/phluoruser/
+
+***  var
+The persistent folder of bricks where they can store downloaded files... This file is usually available at http://mysite.com/var/
+
+*** var_private
+Same as above but it's not available with a specific url
+    

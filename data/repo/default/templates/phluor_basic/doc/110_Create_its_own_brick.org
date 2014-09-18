@@ -1,0 +1,50 @@
+* How to create it's own brick
+Every template must have the following structure:
+
+├── <Name of the brick>
+    ├── install_details.dico (facultatif, dico file)
+    ├── replacement.qdico (facultatif, question dico file)
+    ├── brick_depends.phluor (facultatif)
+    ├── lib_depends.phluor (facultatif [NEED TO BE INPLEMENTED])
+    ├── post_install.ml (facultatif [NEED TO BE INPLEMENTED])
+    └── brick
+        ├── root_brick (*NO* facultatif, dico file)
+        └── <Files of the template>
+
+├── <Name of the brick>
+    ├── package
+    │   ├── info.dico (*NO* facultatif, dico file)
+    │   ├── name.dico (Text loaded by the Makefile to register the brick.)
+    │   ├── replacement.qdico (facultatif, question dico file)
+    │   ├── brick_depends.txt (facultatif)
+    │   ├── lib_depends.txt (facultatif [NEED TO BE INPLEMENTED])
+    │   ├── message.txt (facultatif, display message after install)
+    │   └── post_install.ml (facultatif [NEED TO BE INPLEMENTED])
+    ├── doc/ (The documentation folder)
+    ├── src/ (All sources of the brick are in this folder)
+    ├── root_brick (*NO* facultatif, dico file)
+    └── <Files of the template>
+
+See 100_How_does_phluor_work, section "Files of each brick" to have more details on the "brick" folder.
+
+** files
+See 101_Create_its_own_template for more details on these files. Only a the next ones are brick specific :
+*** package/
+**** package/info.dico
+This file isn't loaded in the Makefile, but here are the options you can specify, in a dico format, which are usefull during installation:
+***** VERSION
+ gives the current version of the brick
+***** MODE :
+gives the mode of copy of the brick:
+- brick: the brick is copied in src/<brick name>/ (brick name is given by the position of the file =install_details.dico= in the path : <repo>/<brick name>/install_details.dico.
+- model: the brick is copied in src/. *THE PATH MUST THEN BE IN THE brick/ FOLDER !*. It's usefull when you want to create a model of a brick.
+**** package/name.dico
+This file is loaded in the Makefile and is usefull to load the library. Please make sure it's updated when you change the path of your lib. Usually it contains
+- BRICK_NAME : something like Acme/Mybrick
+- BRICK_ONE_WORD : something like AcmeMybrick (for the moment useless, but after maybe usefull to pack all files in the library)
+
+*** root_brick
+Empty file, usefull to know where is the root of the brick.
+
+
+

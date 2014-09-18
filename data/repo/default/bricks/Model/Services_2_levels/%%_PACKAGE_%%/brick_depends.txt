@@ -1,0 +1,2 @@
+%%_BRICKDEPENDS_%%
+%%_NAMESPACE_%%/%%_SHORTNAME_%%/services

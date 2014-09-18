@@ -1,0 +1,3 @@
+BRICK_NAME=%%_NAMESPACE_%%/%%_SHORTNAME_%%/services
+# Useless for the moment
+BRICK_ONE_WORD=%%_ONE_WORD_%%Services

@@ -1,0 +1,4 @@
+TEMPLATE=phluor_basic
+VERSION=1.0
+PROJ_NAME=%%___PROJ_NAME___%%
+ 

@@ -1,0 +1,1 @@
+Here is a test. It creates a page with JS which points on the root page, and add an easy way to configure the text. See the code and doc for more details. You can access this page to the root of the website.

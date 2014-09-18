@@ -1,0 +1,2 @@
+PORT = %%___PORT___%%
+STATIC = static

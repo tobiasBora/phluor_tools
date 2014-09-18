@@ -1,0 +1,5 @@
+_NAMESPACE_ | What namespace do you want to use ? (MUST BEGIN WITH AN UPPER CASE LETTER, if the brick name is "Acme/Mybrick", the namespace is Acme) | maj alphanum-ext
+_SHORTNAME_ | What is the short name of the brick ? (BEGIN WITH AN UPPET CASE LETTER, With the last example the short name is mybrick) | maj alphanum-ext
+_ONE_WORD_ | What is the one word name of the brick ? (BEGIN WITH AN UPPET CASE LETTER, for example AcmeMybrick) | maj alphanum-ext
+_BRICKDEPENDS_ | What are the brick depends ? (separate with spaces) | System/Kernel System/PhConfig | space_enter
+_VERSION_ | What is the version ? | 1.0 | -

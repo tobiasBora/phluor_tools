@@ -1,0 +1,2 @@
+_EXAMPLE_ | Here is an example of a configurable variable. Give me a word ?
+_PREFIX_URL_ | Which url prefix would you like to use ? (separate with '/') | funny/prefix | -

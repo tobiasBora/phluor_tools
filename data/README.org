@@ -1,0 +1,29 @@
+* Create a template
+A template should have this structure :
+
+__> Template_name/
+____> replacement.phluor
+____> dependances.phluor
+____> post_install.ml
+____> template/
+
+** File description
+*** replacement.phluor
+This file should have this structure :
+#+BEGIN_SRC text
+word1 | Question to ask for getting word1
+word1 | Question to ask for getting word2
+word3 | Question to ask for getting word2 | Default value
+#+END_SRC
+And all occurences of %%word1%% and %%word2%% will be replaced by the result of the question asked to the user.
+
+There is by default only %%PROJECT_NAME%% which is remplaced by the project name.
+
+*** dependances.phluor
+This file run should contain (one line for each depends) a list of extensions needed to use the project. NOT AVAILABLE FOR THE MOMENT, usefull only when an extension manager will be present.
+
+*** post_install.ml
+This script is run after the installation.
+
+*** template/
+This folder contains the "real" template.

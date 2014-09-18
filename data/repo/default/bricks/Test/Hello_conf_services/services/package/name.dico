@@ -1,0 +1,3 @@
+BRICK_NAME=Test/Hello_conf_services/services
+# Useless for the moment
+BRICK_ONE_WORD=TestHelloConfServices
