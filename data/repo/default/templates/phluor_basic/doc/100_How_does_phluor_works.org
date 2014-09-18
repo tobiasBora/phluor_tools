@@ -1,20 +1,21 @@
 * How does phluor works?
 
 ** Where should I go to configure...
-*** The name of the project
-See the first lines of =Makefile.conf=
 *** The port and some configuration of the server
 The file =server_conf.test.dico= contains information about the server, and it is used by both =Makefile= and =run_server.conf= (which contains the configuration file of the server).
 
-*** The path to commands
+*** The path to commands used in the compilation process
 Go in =Makefile.conf=
-
 *** The name of a brick
-Go in =src/$(brick)/Makefile.conf=.
+Go in =src/$(brick)/package/name.dico=. Don't forget to change the path too !
 *** The dependencies of a brick
-Go in =src/$(brick)/Makefile=, the things to change are documented here.
+Go in =src/$(brick)/package/brick_depends.txt= and add one brick by line !
+*** The bricks to load in the website
+Just add all bricks in =bricks_included.txt=.
 
 ** Files of the project
+*** =config/=
+The folder contains all configurations of the bricks installed.
 *** =Makefile=
 This file compiles the whole project and run the server. It gets some info from =server_conf.test.dico= (port...) an =Makefile.conf= (path of programs).
 *** =server_conf.test.dico=
@@ -37,10 +38,8 @@ Contains all documents which should be available without an ocsigenserver parsin
 This folder is generated during compilation, contains the configuration files, a copy of each library cma, and a copy of the static folder.
 **** =www/bin_js/=
 Contains each client cmo file for each brick. All of them are then packed into one js file.
-**** =www/config/=
-Contain in subdir all files of =$B/config/=.
 **** =www/server_conf.dico=
-Copy of =server_conf.dico=, dico for =www/run_server.conf=.
+Copy of =server_conf.dico=, dico for =www/run_server.conf=. The copy takes some values from dico files in =config/= and from =server_conf.test.dico=.
 **** =www/local/=
 Log...
 **** =www/modules/=
@@ -64,14 +63,7 @@ This folder contains an other brick with the same structure as above. It is used
 *** =static/=
 This folder should contain any file available without ocsigenserver parse, such as pictures, css... It is then copied in =www/static/$(brick_name)/=
 ** What is a dico file ?
-A dico file is a file with this syntax :
-#+BEGIN_SRC text
-# Any comment here...
-WORD1 = REPLACEMENT1
-WORD2 = REPLACEMENT2
-#+END_SRC
-
-When you copy a file with phluor_tool, you can choose to replace each occurences of =%%WORDn%%%= with the correspondant word =REPLACEMENTn=. The advantages of such files is that they can be loaded to in Makefile with include : it avoid information duplicate.
+Please read =001_The_differents_fileformat.org=.
 
 ** What is the algorithm used to deal with dependencies
 /I will abreviate here the path =src/$(brick)/= with =$B/=./
@@ -117,3 +109,5 @@ If the file =<any file name>= doesn't exists, for each library the file =$B/conf
 
 For example, if one brick wants to insert an other extension, just put in =$B/config/extension.conf= the line
 : <extension findlib-package="<the new extension>" />
+
+The same thing is done with values =%%VALUE%%= but they are taken first in the folder =config/<brick_name>/main_dico.dico= if it exists.

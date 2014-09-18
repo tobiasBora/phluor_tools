@@ -1,0 +1,8 @@
+* How to add a new brick in my website
+To add a new brick it's really simple, just run somewhere in your project :
+: phluor_tools add_brick
+
+You will then be prompted to choose a brick in a list (Later I will add a way to be able to choose the name in the command line). Then answer if needed to some basic questions, and that's it !
+
+* How to configure a brick
+You just need to go in =config/<brick name>/main_dico.dico= and change the current values !

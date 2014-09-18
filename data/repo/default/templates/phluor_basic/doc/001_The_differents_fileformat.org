@@ -2,8 +2,8 @@
 ** Question dico files (.qdico)
 These files should have this structure :
 #+BEGIN_SRC text
-# comment
-___word1___ | Question to ask for getting word1 | options
+# Here is a comment which presents the three possible structures :
+___word1___ | Question to ask for getting word1
 ___word2___ | Question to ask for getting word2 | options
 ___word3___ | Question to ask for getting word2 | Default value | options
 #+END_SRC
@@ -11,7 +11,7 @@ And all occurences of %%___word1___%%, %%___word2___%%... will be replaced by th
 
 There is by default only %%___PROJ_NAME___%% which is remplaced by the project name (in template mode).
 
-/!\ Naming convention : please in order to avoid any collision with dico file which should be used inside the template itself (if you don't want to replace %%NAME%%% for exemple) all the template name must begin with 3 underscores (like this : "___yourvar___") when it must be replaced during the template copy, and one underscoe when it must be replaced during the brick copy, while the 0 underscores entries should be replaced only during the configurations of the server during compilation.
+/!\ Naming convention : please in order to avoid any collision with dico file which should be used inside the template itself (if you don't want to replace %%NAME%%% for exemple) all the template name must begin with 3 underscores (like this : "___yourvar___") when it must be replaced during the template copy, and one underscoe when it must be replaced during the brick copy, while the 0 underscores entry should be replaced only during the configurations of the server during compilation.
 
 
 ** Dico file (.dico)

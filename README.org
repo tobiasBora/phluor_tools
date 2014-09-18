@@ -2,7 +2,7 @@
 Phluor is a project which wants to make easier the creation of a website based on different modules ("bricks") working together.
 
 ** The philosophy
-Phluor is mainly based on these bricks. The idea is to have a modular system : a brick must be easy to create, each brick can use others bricks or Ocaml modules as dependancies to work. A brick must be really easy to install: copying the brick in the =src/= folder should be enough.
+Phluor is mainly based on these bricks. The idea is to have a modular system : a brick must be easy to create, each brick can use others bricks or Ocaml modules as dependancies to work. A brick must be really easy to install: running a simple command should be enough to install and configure it.
 
 Moreover I'm sure that the documentation is one of the main point of a project, so each brick should have a good documentation and should be easy to use.
 
@@ -13,34 +13,38 @@ For the moment the base skeletton works. Specifically, here are the working func
 - The dependances are auto-detected with an automatic recursive dependance search
 - All the libraries needed are included (in the right order) in the configuration file which is used by ocsigenserver
 - Each library can have a static folder where it can put pictures, files...
-- Each library has a part (especially used by service definition) which is build before others libraries and can be include in them very easily
-- The server configuration file is autogenerate and can be configurate. Moreover each library can write in this file where it want with a powerful system of anchor (see doc for more details)
+- Each library has a part (especially used by service definition) which is build before others libraries and can be include in them very easily. It's usually usefull to provide links (services) to others libraries
+- The server configuration file is autogenerate and can be configurated from every brick. Moreover each library can write in this file where it want with a powerful system of anchor (see doc for more details)
 - The server can be launch at the end of the compilation or when you want with a simple command
+- Each brick can be configurated by modifying a simple file
 
 If you want more details please read the doc in the =doc= folder, especially =doc/00_Quickstart.org=.
 
 * I like that, where could I learn how to use it ?
 Just go in the =doc= folder, there is lot's of documentation (It's easier to read them with org-mode enabled (emacs), but you can read them with any text editor).
 
-Here is the name convention :
+Here is the naming convention of the documentation :
+#+BEGIN_SRC text
 - 0xx -> Doc for a classic user
 -- 00x -> Basic things to know
 -- 01x -> Things related with the use of bricks
 - 1xx -> Doc for programmers
+#+END_SRC
 
 * What should be done now ?
 Here are some ideas or small tasks to do to improve this program :
 
 In the phluor_basic templace
 - Auto-copy config files in config/... AND KEEP THE OLD CONF
-- Write interface files for readability
-- Give the possibility to "pack" the modules in a brick in one module in order to avoid colision between several bricks. (play with the -pack/-for-pack option ?)
-- Documentation (options)
+- Write interface files for readability (.mli)
+- Give the possibility to "pack" the modules in a brick in one module in order to avoid colision between several brick names. (play with the -pack/-for-pack option ?)
+- Documentation (options during qdico parsing + update some parts)
 - Find an easy and powerfull way to use translation in a website (for example with gettext, but I think an other way should be use for client part)
 - Deal with database (in the ideal a general bricks which could choose several database backend, and there should exists a way to create/update a local database for small configuration, such as a local postgresql one)
-- Create a brick which deals with files : it must be possible to upload files in the persistant folder www/static/var/<brick name>/ (which is a symlink to var/)
+- Create a brick which deals with pathnames : it must be possible to upload files in the persistant folder www/static/var/<brick name>/ (which is a symlink to var/) easily
 
 Brick idea :
+- Database + translation brick
 - A Lorem Ipsum brick, giving an easy access to long texts (client and server part)
 - Editor : could be used by other bricks to display some advanced editor such as [[http://www.tinymce.com/][Tinymce]], [[http://elrte.org/demo][elRTE]], textarea with an help option...
 - A blog brick (maybe the translation/database problem should be solve first)
@@ -50,11 +54,11 @@ Brick idea :
 
 
 In phluor_tools
-- Add a way to auto-add some bricks, from the data folder or from the internet (Github, tar.gz for example)
+- Add a way to add some bricks from the internet or archives (Github, tar.gz for example)
 - Check that Ocaml libs are installed, and why not linux programs (API findlib : http://projects.camlcity.org/projects/dl/findlib-1.5.2/doc/ref-html/c1040.html)
-- Add a way to remove a lib --> Remove conf, brick code and in bricks_depends.txt
+- Add a way to remove a brick --> Remove conf, brick code and in bricks_depends.txt
 - Add a way to easily package a brick --> The structure is quite easy to package by hand, it should be hard
 - Documentation
 
 * I want to help !
-For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm quite new with lot's of advanced functions so I'm not sure that everything I do is really proper but I try to be as clean as possible, even if it's possible that some part of the code must be rewritten. I tried at the beginning to base my project on oasis but the functions I found was to restrictive for this project.
+For the moment I'm the only one in this project, so if you want to join me it would be a pleasure. I'm an auto-didacte so I may do some things with a bad methods but I try to be as clean and proper as possible. If you want to join the project, you can contact me from github, on IRC (tobiasBora, often on #ocsigen, #ocaml...), or with my email : tobias . bora <arobase> gmail . com
