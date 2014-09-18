@@ -1,5 +1,5 @@
 * What is Phluor ?
-Phluor is a project which wants to make easier the creation of a website based on different modules ("bricks") working together.
+Phluor is a project which wants to make easier the creation of a website based on different modules ("bricks") working together. You can find a presentation video here: https://www.youtube.com/watch?v=kcnikpOa8ng. (I'm sorry, it's a bad quality video, and in french, but I will publish an english version soon, and I'm trying to see how to get a better quality) 
 
 ** The philosophy
 Phluor is mainly based on these bricks. The idea is to have a modular system : a brick must be easy to create, each brick can use others bricks or Ocaml modules as dependancies to work. A brick must be really easy to install: running a simple command should be enough to install and configure it.
