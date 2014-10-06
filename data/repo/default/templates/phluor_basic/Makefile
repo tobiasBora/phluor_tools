@@ -80,26 +80,26 @@ update_server_part: _dep _dep_lib | www/
 
 ### RUNSERVER CONFIGURATION
 # This is a little function to avoid typing to much text
-## This next lines insert the bricks conf in run_server.conf.
+## This next lines insert the bricks conf in run_server.xml.
 # The order of include is
 # - Include files of src/<brick name>/config/
 # - Include files of config/<brick name> <--- Make sure you know what you are doing, don't create files already present in src/.../config because if would create a new entry
 # - Include text from dico src/<brick name>/package/name.dico (only BRICK_NAME)
 # - Include text from dico config/<brick name>/main.conf
 # - Include text from dico src/<brick name>/config/main.conf
-config_brick = echo $(1) && $(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --inc --keep_inc --prefix src/$(1)/config/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --inc --keep_inc --prefix config/$(1)/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --dico_content src/$(1)/config/main.dico --avoid_error
+config_brick = echo $(1) && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
 
 update_config: _dep _dep_lib | www/
 	@echo "--- Server configuration..."
-	cp run_server.conf www/run_server.conf
+	cp run_server.xml www/run_server.xml
 # If the brick is only the service part of another brick (presence of
 # a file in package/new_brick_conf.txt containing the parent brick),
 # the configuration first goes in the service brick, and then in the
 # non service one.
 	$(foreach brick, $(shell cat _dep), if [ -s "src/$(brick)/package/new_brick_conf.txt" ]; then $(call config_brick,$$(cat "src/$(brick)/package/new_brick_conf.txt"),$(brick)); else $(call config_brick,$(brick),$(brick)); fi && ) true
-	$(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --dico_content server_conf.test.dico --avoid_error
+	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content server_conf.test.dico --avoid_error
 # Remove all resident files.
-	$(PHLUOR_TOOLS) copy www/run_server.conf www/run_server.conf --rem_only --avoid_error
+	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --rem_only --avoid_error
 
 
 # Copy each brick in the www/ folder
@@ -128,7 +128,7 @@ run:
 	@echo "#################################"
 	@echo "The website is available in port $(PORT) (for example http://localhost:$(PORT)/ )"
 	@echo "---------------------------------"
-	cd www/; ocsigenserver -c run_server.conf -v
+	cd www/; ocsigenserver -c run_server.xml -v
 
 # Compil and run
 r: all run

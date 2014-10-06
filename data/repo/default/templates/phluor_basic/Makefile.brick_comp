@@ -14,13 +14,13 @@ PWD=$(shell pwd)
 ifeq ($(strip $(SERVER_PACKAGES)),)
 M_SERVER_PACKAGES:=
 else
-M_SERVER_PACKAGES:= -package $(SERVER_PACKAGES)
+M_SERVER_PACKAGES:= $(SERVER_PACKAGES:%=-package %)
 endif
 
 ifeq ($(strip $(CLIENT_PACKAGES)),)
 M_CLIENT_PACKAGES:=
 else
-M_CLIENT_PACKAGES:= -package $(CLIENT_PACKAGES)
+M_CLIENT_PACKAGES:= $(CLIENT_PACKAGES:%=-package %)
 endif
 
 all: depends hello server client _dep _dep_lib
@@ -56,9 +56,12 @@ depends:
 ## Server side compilation
 
 ${ELIOM_TYPE_DIR}/%.type_mli: %.eliom
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	${ELIOMC} $(M_SERVER_INCLUDE) -infer ${M_SERVER_PACKAGES} $<
 
-_exec:
+_exec/:
 	mkdir _exec
 
 _exec/server_part.cma: $(call objs,$(ELIOM_SERVER_DIR),cmo,$(SERVER_SOURCES)) | _exec/
@@ -78,14 +81,16 @@ ${ELIOM_SERVER_DIR}/%.cmi: %.mli
 ${ELIOM_SERVER_DIR}/%.cmi: %.eliomi
 	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
 
-${ELIOM_SERVER_DIR}/%.cmo: %.ml
+# The last dependances are usefull to make sure the lib is recompiled if a dependence
+# has been recompiled just before
+${ELIOM_SERVER_DIR}/%.cmo: %.ml _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
-${ELIOM_SERVER_DIR}/%.cmo: %.eliom
+${ELIOM_SERVER_DIR}/%.cmo: %.eliom _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
 
-${ELIOM_SERVER_DIR}/%.cmx: %.ml
+${ELIOM_SERVER_DIR}/%.cmx: %.ml _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
-${ELIOM_SERVER_DIR}/%.cmx: %.eliom
+${ELIOM_SERVER_DIR}/%.cmx: %.eliom _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
 
 server: echo_server _exec/server_part.cma
@@ -152,8 +157,12 @@ _dep: $(CLIENT_SERVER_DEPENDS:%=$(SRC)%/_dep) $(CLIENT_ONLY_DEPENDS:%=$(SRC)%/_d
 _dep_lib:
 	echo $(call depsort,,cmo,-server,$(M_CLIENT_PACKAGES),$(CLIENT_SOURCES)) | sed -e 's/ /\n/g' | awk '{print "src/$(BRICK_NAME)/$(ELIOM_CLIENT_DIR)"$$0}' > _dep_lib
 
-clean:
-	rm -rf _client/ _server/ _dep _dep_lib
+clean: clean_compile clean_perso
+clean_compile:
+#	rm -rf _client/ _server/ _deps/ _exec/ .depend
+	rm -rf _client/ _server/ _deps/ _exec/ .depend
+clean_perso:
+	rm -rf _dep _dep_lib
 
 # Clean dependencies too !
 clean_all: clean
