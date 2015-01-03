@@ -88,17 +88,15 @@ putting in name.dico an entry REGISTERED_NAME.
       |> List.iter
 	   (fun src_file ->
 	    F.copy_and_replace dico dico src_file dest);
-
       (* We copy the folder config_model after to avoid replacement in it *)
       if FileUtil.(test Exists (src_dir // "config_model"))
       then
 	F.copy_and_replace [] [] (src_dir // "config_model") dest;
       (* Generation of the folder config, from a new dico in model mode *)
       if FileUtil.(test Exists (dest // "config_model"))
-	 && not FileUtil.(test Exists (dest // "config"))
       then
 	begin
-	  let new_dico =
+	  let new_dico =	(* Generate the dico from qdico *)
 	    if not is_model then dico
 	    else
 	      begin
@@ -112,27 +110,23 @@ putting in name.dico an entry REGISTERED_NAME.
 		    with _ -> [])
 		    end
 	  in
+	  let perso_folder = "config" // registered_name in
+	  (* Save an eventual older configuration file *)
+	  if FileUtil.(test Exists perso_folder)
+	  then begin
+	      FileUtil.rm ~recurse:true [perso_folder];
+	      F.copy_and_replace
+		 []
+		 []
+		 perso_folder
+		 ("config" // (registered_name ^ ".bak"))
+	    end;
+	  (* Copy the config_model into the user config path *)
 	  F.copy_and_replace_inside new_dico new_dico
 				    (dest // "config_model")
-				    (dest // "config")
+				    perso_folder;
+	  Printf.printf "The configuration is now in the folder %s.\n" perso_folder
 	end;
-      let src_dico = (dest // "config" // "main.dico") in
-      if FileUtil.(test Exists src_dico)
-      then
-	begin
-	  let perso_dico_file = "config" // registered_name // "main.dico" in
-	  (* Save an eventual older configuration file *)
-	  if FileUtil.(test Exists perso_dico_file)
-	  then F.copy_and_replace
-		 []
-		 []
-		 perso_dico_file
-		 ("config" // registered_name // "main.dico.bak");
-	  (* Save the new configuration file. In a next version it would be nice
- to keep the old conf if possible, and change it only if necessary *)
-	  F.copy_and_replace [] [] src_dico perso_dico_file;
-	  Printf.printf "The configuration is now in the file %s.\n" perso_dico_file
-	end;      
 
       Printf.printf "%s was installed successfully.\n" brick_name;
       (* If the brick is registed in bricks_included.txt, it's possible to
