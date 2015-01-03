@@ -81,8 +81,9 @@ let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
 	else
 	  let spl = Str.split (Str.regexp sep) line in
 	  match spl with
-	    [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)
-	  | _ -> failwith (Printf.sprintf "An error occured on line %d : '%s'" (!i) line);
+	    [w1] -> aux ((w1,"")::acc) (* Allow empty value *)
+	  | [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)
+	  | _ -> failwith (Printf.sprintf "An error occured on line %d of %s : '%s'" (!i) filename line);
       with
 	Failure s -> (close_in ic; failwith s)
       | _ -> (close_in ic; acc)
@@ -164,8 +165,8 @@ let dico_of_question_file ?(comment=true) ?(sep="|") ?(avoid_error=false) filena
 	  match spl with
 	    [word;question] ->
 	    aux ((remove_trailing_spaces word,
-		 ask (remove_trailing_spaces question) |> apply_options)
-		::acc)
+		  ask (remove_trailing_spaces question) |> apply_options)
+		 ::acc)
 	  | [word; question; default] ->
 	     aux ((remove_trailing_spaces word,
 		   ask ~default
@@ -173,7 +174,7 @@ let dico_of_question_file ?(comment=true) ?(sep="|") ?(avoid_error=false) filena
 			  " (Default : " ^ default ^ ")") |> apply_options)
 		  :: acc)
 	  | [] -> aux acc
-	  | _ -> failwith (Printf.sprintf "An error occured on line %d : '%s'" (!i) line)
+	  | _ -> failwith (Printf.sprintf "An error occured on line %d of %s : '%s'" (!i) filename line)
       with Failure s -> (close_in ic; failwith s)
 	 | End_of_file -> (close_in ic; acc)
     in

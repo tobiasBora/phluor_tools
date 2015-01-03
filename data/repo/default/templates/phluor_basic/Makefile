@@ -89,7 +89,7 @@ update_server_part: _dep _dep_lib | www/
 # - Include text from dico src/<brick name>/config/main.conf
 config_brick = echo $(1) && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
 
-update_config: _dep _dep_lib | www/
+update_config: _dep _dep_lib merge_www | www/
 	@echo "--- Server configuration..."
 	cp run_server.xml www/run_server.xml
 # If the brick is only the service part of another brick (presence of
@@ -101,6 +101,8 @@ update_config: _dep _dep_lib | www/
 # Remove all resident files.
 	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --rem_only --avoid_error
 
+merge_www: _dep _dep_lib | www/
+	$(foreach brick, $(shell cat _dep), if [ -d "src/$(brick)/add_www/" ]; then cp -r "src/$(brick)/add_www/*" www/; fi && ) true
 
 # Copy each brick in the www/ folder
 # copy_bricks: compil_bricks _dep _dep_lib
@@ -144,4 +146,4 @@ clean:
 clean_only_current:
 	rm -rf www/ _dep _dep_lib
 
-PHONY: all compil_bricks copy_bricks run r clean clean_all update_static update_client_part update_server_part update_config
+PHONY: all compil_bricks copy_bricks run r clean clean_all update_static update_client_part update_server_part update_config merge_www

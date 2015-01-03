@@ -156,7 +156,6 @@ _dep_lib:
 
 clean: clean_compile clean_perso
 clean_compile:
-#	rm -rf _client/ _server/ _deps/ _exec/ .depend
 	rm -rf _client/ _server/ _deps/ _exec/ .depend
 clean_perso:
 	rm -rf _dep _dep_lib
