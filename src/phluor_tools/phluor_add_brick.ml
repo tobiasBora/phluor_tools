@@ -49,12 +49,12 @@ let add_one_brick ?(register=`Ask) brick_name0 =
 	with _ -> [] in
       (* dico_conf can be use as a simple dico *)
       let dico =
-	(try
-	    F.(dico_of_question_file (src_dir // "package" // "replacement.qdico"))
-	  with _ -> [])
+	F.(dico_of_question_file
+	     ~avoid_error:true
+	     (src_dir // "package" // "replacement.qdico"))
 	@ dico_conf in
       let is_model = F.dico_get_from_key_opt dico_conf "MODE" = Some "model" in
-      (* It is possible to define another brick name (usefull for models) by
+      (* It is possible to define another brick name (useful for models) by
 putting in name.dico an entry REGISTERED_NAME.
        *)
       let registered_name =
@@ -64,6 +64,7 @@ putting in name.dico an entry REGISTERED_NAME.
 	| Some tmp_name -> F.replace_in_string dico tmp_name
       in
       let dest = "src/" // registered_name in
+      let perso_folder = "config" // registered_name in
 
       (* Avoid to copy some filenames. The "config_model" folder is copied
      after because it's content shouldn't be replaced.
@@ -110,16 +111,16 @@ putting in name.dico an entry REGISTERED_NAME.
 		    with _ -> [])
 		    end
 	  in
-	  let perso_folder = "config" // registered_name in
 	  (* Save an eventual older configuration file *)
 	  if FileUtil.(test Exists perso_folder)
 	  then begin
-	      FileUtil.rm ~recurse:true [perso_folder];
+	      Printf.printf "Saving the old conf...\n";
 	      F.copy_and_replace
 		 []
 		 []
 		 perso_folder
-		 ("config" // (registered_name ^ ".bak"))
+		 ("config" // (registered_name ^ ".bak"));
+	      FileUtil.rm ~recurse:true [perso_folder]
 	    end;
 	  (* Copy the config_model into the user config path *)
 	  F.copy_and_replace_inside new_dico new_dico
@@ -127,7 +128,14 @@ putting in name.dico an entry REGISTERED_NAME.
 				    perso_folder;
 	  Printf.printf "The configuration is now in the folder %s.\n" perso_folder
 	end;
-
+      if FileUtil.(test Exists (src_dir // "package" // "post_install.sh"))
+      then begin
+	  Printf.printf "Running post_install.sh...\n%!";
+	  let cwd = Sys.getcwd () in
+	  Sys.chdir perso_folder;
+	  Sys.command ("bash post_install.sh");
+	  Sys.chdir cwd
+	end;
       Printf.printf "%s was installed successfully.\n" brick_name;
       (* If the brick is registed in bricks_included.txt, it's possible to
      have a different register name (usefull for models). The new name

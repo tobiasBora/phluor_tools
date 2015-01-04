@@ -145,7 +145,7 @@ let dico_of_question_file ?(comment=true) ?(sep="|") ?(avoid_error=false) filena
       try
 	let line = input_line ic in
 	incr i;
-	if (comment && line.[0] = '#') || line = "" then aux acc
+	if line = "" || (comment && line.[0] = '#') then aux acc
 	else
 	  (* The options are always at the end, if there are two items,
              the options are facultative. *)
