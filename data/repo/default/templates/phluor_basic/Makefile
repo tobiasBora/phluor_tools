@@ -4,11 +4,21 @@
 # ===============================================
 
 # Here is the list of all bricks loaded
-BRICKS_LIST=$(shell cat bricks_included.txt)
+BRICKS_LIST ?= $(shell cat bricks_included.txt)
+# The file in modele_server_conf.txt will be user
+# to choose the caracteristics of the server (such
+# as the port). For example the file
+# server_conf.prod.dico
+# allow you to run the server on port 80
+# If you want to try a server conf file for a temp
+# specify it with something like this :
+# make r MODELE_SERVER_CONF=<server_conf.prod.dico or something else>
+MODELE_SERVER_CONF ?= $(shell (cat link_server_conf.txt | grep -v "^\#"))
 
 include package/info.dico
 # Configure server conf 
-include server_conf.test.dico
+# include server_conf.test.dico
+include $(MODELE_SERVER_CONF)
 
 # ========================================
 # Shoudn't be edited by user
@@ -89,17 +99,17 @@ update_server_part: _dep _dep_lib | www/
 # - Include text from dico src/<brick name>/config/main.conf
 config_brick = echo "--$(1)$(2)--" && if [ -d config/$(1) ]; then $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error; else $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error; fi && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
 
-update_config: _dep _dep_lib | www/
+update_config: _dep _dep_lib link_server_conf.txt | www/
 	@echo "--- Server configuration..."
 	cp run_server.xml www/run_server.xml
 # Edit the file www/run_server with the system dico
-	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content server_conf.test.dico --avoid_error
+	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content $(MODELE_SERVER_CONF) --avoid_error
 # If the brick is only the service part of another brick (presence of
 # a file in package/new_brick_conf.txt containing the parent brick),
 # the configuration first goes in the service brick, and then in the
 # non service one.
 	$(foreach brick, $(shell cat _dep), if [ -s "src/$(brick)/package/new_brick_conf.txt" ]; then $(call config_brick,$$(cat "src/$(brick)/package/new_brick_conf.txt"),$(brick)); else $(call config_brick,$(brick),$(brick)); fi && ) true
-	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content server_conf.test.dico --avoid_error
+	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content $(MODELE_SERVER_CONF) --avoid_error
 # Remove all resident files.
 	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --rem_only --avoid_error
 
@@ -130,8 +140,11 @@ run:
 	@echo "#################################"
 	@echo "The website is available in port $(PORT) (for example http://localhost:$(PORT)/ )"
 	@echo "---------------------------------"
-	cd www/; ocsigenserver -c run_server.xml -v
-
+# sudo chmod 500 /etc/authbind/byport/80
+# sudo chown leo /etc/authbind/byport/80
+# cd www/; su --preserve-environment -c "ocsigenserver -c run_server.xml -v"
+	@echo "$(ERROR_MESSAGE)"
+	cd www/; $(OCSIGENSERVER) -c run_server.xml -v
 # Compil and run
 r: all run
 

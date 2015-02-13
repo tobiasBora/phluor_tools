@@ -1,2 +1,9 @@
-PORT = %%___PORT___%%
-STATIC = static
+# You can choose the this server_conf modele by putting server_conf.test.dico in
+# modele_server_conf.txt
+STATIC ?= static
+# To configure a port < 512 (like 80) you should use the server_conf.prod.dico
+# modele
+PORT = 8080
+OCSIGENSERVER ?= ocsigenserver
+OCSIGENSERVER.OPT ?= ocsigenserver.opt
+ERROR_MESSAGE = Development run.

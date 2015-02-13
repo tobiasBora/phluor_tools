@@ -1,0 +1,17 @@
+# You can choose the this server_conf modele by putting server_conf.prod.dico in
+# modele_server_conf.txt
+STATIC ?= static
+PORT = 80
+
+# If the port is < 512 you have to install authbind
+# $ sudo apt-get install authbind
+# And configure it to allow you to use low level ports
+# with
+# $ sudo touch /etc/authbind/byport/<port number>
+# $ sudo chmod 500 /etc/authbind/byport/<port number>
+# $ sudo chown <user> /etc/authbind/byport/<port number>
+# Then you must change the ocsigenserver into
+OCSIGENSERVER ?= authbind ocsigenserver
+OCSIGENSERVER.OPT ?= authbind ocsigenserver.opt
+ERROR_MESSAGE = Production run. If you see an error about EPERM or a bad connection, you need to configure authbind. Please read server_conf.prod.dico for more information
+

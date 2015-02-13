@@ -1,7 +1,6 @@
 <ocsigen>
   <server>
     <port>%%PORT%%</port>
-
     <logdir>local/var/log/%%PROJ_NAME%%</logdir>
     <datadir>local/var/data/%%PROJ_NAME%%</datadir>
     <charset>utf-8</charset>
