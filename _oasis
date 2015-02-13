@@ -27,4 +27,4 @@ Executable install_data
   Install:	false
 
 PostInstallCommand: $install_data $datadir $pkg_name data
-
+PostUninstallCommand: rm -rf "$datadir/$pkg_name"

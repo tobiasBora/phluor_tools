@@ -6,7 +6,9 @@ build: [
   ["ocaml" "setup.ml" "-install"]
 ]
 remove: [
+  ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
   ["ocaml" "setup.ml" "-uninstall"]
+  ["ocamlfind" "remove" "phluor_tools"]
 ]
 depends: [
   "ocamlfind"

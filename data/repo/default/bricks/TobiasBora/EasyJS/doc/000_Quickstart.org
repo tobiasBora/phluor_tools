@@ -1,0 +1,2 @@
+* What is is ?
+This brick is aimed to give simple functions to be more efficient during programmation with Javascript.

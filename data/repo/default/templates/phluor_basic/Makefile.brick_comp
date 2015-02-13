@@ -23,7 +23,7 @@ else
 M_CLIENT_PACKAGES:= $(CLIENT_PACKAGES:%=-package %)
 endif
 
-all: depends hello server client _dep _dep_lib
+all: depends hello before_compilation server client _dep _dep_lib after_compilation
 
 hello:
 	@echo "=============================="
@@ -51,6 +51,11 @@ depends:
 	$(foreach dep, $(SERVER_ONLY_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
 	@echo "- [$(BRICK_NAME)] Dependencies : client part"
 	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
+
+
+test_separate_compilation:
+	${ELIOMC} $(M_SERVER_INCLUDE) -i ${M_SERVER_PACKAGES} TestHello.eliom
+
 
 ##----------------------------------------------------------------------
 ## Server side compilation
@@ -105,8 +110,12 @@ include .depend
 .depend: $(patsubst %,$(DEPSDIR)/%.server,$(SERVER_SOURCES)) $(patsubst %,$(DEPSDIR)/%.client,$(CLIENT_SOURCES))
 	cat $^ > $@
 
+## Diff
 $(DEPSDIR)/%.server: % | $(DEPSDIR)
-	$(ELIOMDEP) -server $(SERVER_INC) $< > $@
+	$(ELIOMDEP) -server ${M_SERVER_PACKAGES} $< > $@
+
+$(DEPSDIR)/%.client: % | $(DEPSDIR)
+	$(ELIOMDEP) -client ${M_CLIENT_PACKAGES} $< > $@
 
 $(DEPSDIR)/%.client: % | $(DEPSDIR)
 	$(ELIOMDEP) -client $(CLIENT_INC) $< > $@
@@ -152,7 +161,14 @@ _dep: $(CLIENT_SERVER_DEPENDS:%=$(SRC)%/_dep) $(CLIENT_ONLY_DEPENDS:%=$(SRC)%/_d
 
 # Same thing but _dep_lib has the primitive dependencies on the top, and only the current .cmo of the current brick are listed
 _dep_lib:
-	echo $(call depsort,,cmo,-server,$(M_CLIENT_PACKAGES),$(CLIENT_SOURCES)) | sed -e 's/ /\n/g' | awk '{print "src/$(BRICK_NAME)/$(ELIOM_CLIENT_DIR)"$$0}' > _dep_lib
+	echo $(call depsort,,cmo,-server,$(M_CLIENT_PACKAGES),$(CLIENT_SOURCES)) | sed -e 's/ /\n/g' | grep -ve "^$$" | awk '{print "src/$(BRICK_NAME)/$(ELIOM_CLIENT_DIR)"$$0}' > _dep_lib
+
+
+before_compilation: _dep _dep_lib
+	$(foreach brick, $(shell cat _dep), if [ -s "$(SRC)$(brick)/shared_makefiles/before_compilation.Makefile" ]; then echo "-- Running the before compilation Makefile of the brick $(brick) in $(shell pwd)."; make -f "$(SRC)$(brick)/shared_makefiles/after_compilation.Makefile"; fi && ) true
+
+after_compilation: _dep _dep_lib
+	$(foreach brick, $(shell cat _dep), if [ -s "$(SRC)$(brick)/shared_makefiles/after_compilation.Makefile" ]; then echo "-- Running the after compilation Makefile of the brick $(brick) in $(shell pwd)."; make -f "$(SRC)$(brick)/shared_makefiles/after_compilation.Makefile"; fi && ) true
 
 clean: clean_compile clean_perso
 clean_compile:
@@ -171,4 +187,4 @@ clean_all: clean
 	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) ; cd $(dep) ; make clean_all ; cd $(PWD) ;) exit 0
 
 
-PHONY: all hello depends server echo_server client echo_client clean clean_all
+PHONY: all hello depends server echo_server client echo_client clean clean_all before_compilation after_compilation

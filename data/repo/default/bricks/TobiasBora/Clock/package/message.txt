@@ -1,0 +1,1 @@
+This is a simple clock that automatiquely refresh every second. Please read the file TobiasBora/Clock/doc/000_Quickstart.org to get more informations.

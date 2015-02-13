@@ -82,16 +82,18 @@ update_server_part: _dep _dep_lib | www/
 # This is a little function to avoid typing to much text
 ## This next lines insert the bricks conf in run_server.xml.
 # The order of include is
-# - Include files of src/<brick name>/config/
-# - Include files of config/<brick name> <--- Make sure you know what you are doing, don't create files already present in src/.../config because if would create a new entry
+# - Include files of src/<brick name>/config/ if config/<brick name> doesn't exists
+# - Include files of config/<brick name> else
 # - Include text from dico src/<brick name>/package/name.dico (only BRICK_NAME)
-# - Include text from dico config/<brick name>/main.conf
+# - Include text from dico config/<brick name>/main.conf if exists
 # - Include text from dico src/<brick name>/config/main.conf
-config_brick = echo $(1) && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
+config_brick = echo "--$(1)$(2)--" && if [ -d config/$(1) ]; then $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error; else $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error; fi && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
 
-update_config: _dep _dep_lib merge_www | www/
+update_config: _dep _dep_lib | www/
 	@echo "--- Server configuration..."
 	cp run_server.xml www/run_server.xml
+# Edit the file www/run_server with the system dico
+	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content server_conf.test.dico --avoid_error
 # If the brick is only the service part of another brick (presence of
 # a file in package/new_brick_conf.txt containing the parent brick),
 # the configuration first goes in the service brick, and then in the
@@ -101,8 +103,6 @@ update_config: _dep _dep_lib merge_www | www/
 # Remove all resident files.
 	$(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --rem_only --avoid_error
 
-merge_www: _dep _dep_lib | www/
-	$(foreach brick, $(shell cat _dep), if [ -d "src/$(brick)/add_www/" ]; then cp -r "src/$(brick)/add_www/*" www/; fi && ) true
 
 # Copy each brick in the www/ folder
 # copy_bricks: compil_bricks _dep _dep_lib
@@ -146,4 +146,4 @@ clean:
 clean_only_current:
 	rm -rf www/ _dep _dep_lib
 
-PHONY: all compil_bricks copy_bricks run r clean clean_all update_static update_client_part update_server_part update_config merge_www
+PHONY: all compil_bricks copy_bricks run r clean clean_all update_static update_client_part update_server_part update_config

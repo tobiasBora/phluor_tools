@@ -69,7 +69,7 @@ exception Bad_answer
 (* ----------------------------------- *)
 
 (** Convert a file (separate with '=') in dico. Comments begins with # *)
-let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
+let dico_of_file ?(comment=true) ?(sep_l=["=";"\\?=";"\\+=";":="]) ?(avoid_error=false) filename =
   try
     let ic = open_in filename in
     let i = ref 0 in
@@ -79,7 +79,18 @@ let dico_of_file ?(comment=true) ?(sep="=") ?(avoid_error=false) filename =
 	incr i;
 	if comment && line.[0] = '#' then aux acc
 	else
-	  let spl = Str.split (Str.regexp sep) line in
+	  let spl =
+	    let rec try_sep sep_l = match sep_l with
+		[] -> [line]
+	      | sep::r ->
+		 try
+		   (* A first search is necessary to allow empty lines like
+                      "VAR=" *)
+		   Str.search_forward (Str.regexp sep) line 0;
+		   Str.split (Str.regexp sep) line
+		 with Not_found -> try_sep r
+	    in try_sep sep_l
+	  in
 	  match spl with
 	    [w1] -> aux ((w1,"")::acc) (* Allow empty value *)
 	  | [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)

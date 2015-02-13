@@ -128,7 +128,7 @@ putting in name.dico an entry REGISTERED_NAME.
 				    perso_folder;
 	  Printf.printf "The configuration is now in the folder %s.\n" perso_folder
 	end;
-      if FileUtil.(test Exists (src_dir // "package" // "post_install.sh"))
+      if FileUtil.(test Exists (perso_folder // "post_install.sh"))
       then begin
 	  Printf.printf "Running post_install.sh...\n%!";
 	  let cwd = Sys.getcwd () in
