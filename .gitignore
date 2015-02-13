@@ -3,3 +3,7 @@
 *~
 \#*\#
 /setup.data
+.depend
+._dep.bak
+_dep
+_dep_lib
