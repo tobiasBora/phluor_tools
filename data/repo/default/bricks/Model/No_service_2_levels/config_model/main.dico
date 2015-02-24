@@ -1,4 +1,6 @@
 # You can here configure the application
+# /!\ DON'T FORGET TO MODIFY THE FILE ./module.xml AND
+# ../package/replacement.qdico TO REGISTER ANY NEW CONFIGURATION
 EXAMPLE=%%_EXAMPLE_%%
 # It's often better to configure this file with the replacement.qdico (see line above)
 # but you can put default settings here without putting them in the qdico file like that
