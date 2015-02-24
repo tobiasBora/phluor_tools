@@ -39,6 +39,18 @@ let get_value_list dico ?(sep="/") key =
   get_value dico key
   |> Str.(split (regexp sep))
 
+(** Get a bool from a value. The value can be (case insensitive)
+- true, t, 1, yes, y
+- false, f, 0, no, n
+By default it returns false.
+ *)
+let get_bool dico key =
+  let v = get_value dico key in
+  Str.(string_match (regexp_case_fold "^true$") v 0)
+  || Str.(string_match (regexp_case_fold "^[y|1|t]$") v 0)
+  || Str.(string_match (regexp_case_fold "^yes$") v 0)
+
+	
 (** It's dirty but a bit quicker to use when there is only one key *)
 let get_value_f key = let d = get_dico () in get_value d key
 let get_value_list_f key = let d = get_dico () in get_value_list d key
