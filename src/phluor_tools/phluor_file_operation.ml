@@ -77,7 +77,7 @@ let dico_of_file ?(comment=true) ?(sep_l=["=";"\\?=";"\\+=";":="]) ?(avoid_error
       try
 	let line = input_line ic in
 	incr i;
-	if comment && line.[0] = '#' then aux acc
+	if line = "" || (comment && line.[0] = '#') then aux acc
 	else
 	  let spl =
 	    let rec try_sep sep_l = match sep_l with
@@ -96,8 +96,8 @@ let dico_of_file ?(comment=true) ?(sep_l=["=";"\\?=";"\\+=";":="]) ?(avoid_error
 	  | [w1;w2] -> aux ((remove_trailing_spaces w1,remove_trailing_spaces w2)::acc)
 	  | _ -> failwith (Printf.sprintf "An error occured on line %d of %s : '%s'" (!i) filename line);
       with
-	Failure s -> (close_in ic; failwith s)
-      | _ -> (close_in ic; acc)
+	End_of_file -> (close_in ic; acc)
+      | e -> (close_in ic; raise e)
     in
     aux []
   with Sys_error e ->
