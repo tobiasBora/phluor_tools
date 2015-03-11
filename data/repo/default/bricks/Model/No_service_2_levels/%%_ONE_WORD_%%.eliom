@@ -10,8 +10,9 @@
 
 (* Getting conf : good way = use dico *)
 let dico_conf = PhConfig.get_dico ()
-let example = PhConfig.get_value dico_conf "example"
-let silent_conf = PhConfig.get_value dico_conf "silent_conf"
+let brick_name = PhConfig.get_value dico_conf "BRICK_NAME"
+let example = PhConfig.get_value dico_conf "EXAMPLE"
+let silent_conf = PhConfig.get_value dico_conf "SILENT_CONF"
 
 (* Usefull to debug, remove it when you don't need that anymore *)
 let _ = PhConfig.list_config ()
