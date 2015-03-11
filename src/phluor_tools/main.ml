@@ -42,6 +42,12 @@ let copy copts src_file dst_file dico_filename dico_content prefix keep_dic inc 
       if dico_content = "" then []
       else Phluor_file_operation.dico_of_file ~avoid_error dico_content
     in
+    if copts.debug then
+      (
+	Printf.printf "There are %d elements in the dico.\n"
+		      (List.length dico_content_final);
+	List.iter (fun (a,b) -> Printf.printf "(%s,%s)\n" a b)
+		dico_content_final);
     f_copy
       dico_filename_final
       dico_content_final
