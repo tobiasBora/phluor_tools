@@ -9,12 +9,12 @@
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
     <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite"/>
     <extension findlib-package="eliom.server"/>
-    %%INC(extension.xml)%%
+    %%INC(extensions.xml)%%
     <host hostfilter="*">
       <static dir="%%STATIC%%" />
       <static dir="local/var/www/monproj/eliom" />
       <!--  Order matter ! -->
-      %%INC(module.xml)%%
+      %%INC(modules.xml)%%
       <eliom/>
     </host>
   </server>

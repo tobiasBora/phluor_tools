@@ -7,7 +7,7 @@ The following error
 
 : ocsigenserver: main: Fatal - Error in configuration file: Error while parsing configuration file: Eliom: while loading modules/<your brick>/server_part.cma: PhConfig.Config_item_not_found("<config item>")
 
-means that the brick =<your brick>= tries to access to the item named =<config item>= in the file =config/<your brick>/main.dico= but cannot find it. To solve this problem, edit this file, and report it in =config/<your brick>/module.xml= and add it.
+means that the brick =<your brick>= tries to access to the item named =<config item>= in the file =config/<your brick>/main.dico= but cannot find it. To solve this problem, edit this file, and report it in =config/<your brick>/modules.xml= and add it.
 
-This error is likely to appear if the brick developper forgot to put the item =<config item>= in the brick package, which is usually in =src/<your brick>/config_model/main.dico= and =src/<your brick>/config_model/model.xml=. If you edit this file don't forget to report the modification in =src/<your brick>/package/replacement.qdico= in order to configure it when the user installs the brick.
+This error is likely to appear if the brick developper forgot to put the item =<config item>= in the brick package, which is usually in =src/<your brick>/config_model/main.dico= and =src/<your brick>/config_model/modules.xml=. If you edit this file don't forget to report the modification in =src/<your brick>/package/replacement.qdico= in order to configure it when the user installs the brick.
 

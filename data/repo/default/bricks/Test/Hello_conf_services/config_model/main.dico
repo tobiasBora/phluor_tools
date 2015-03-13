@@ -1,5 +1,5 @@
 # You can here configure the application
-# /!\ DON'T FORGET TO MODIFY THE FILE ./module.xml AND
+# /!\ DON'T FORGET TO MODIFY THE FILE ./modules.xml AND
 # ../package/replacement.qdico TO REGISTER ANY NEW CONFIGURATION
 PREFIX_URL=%%_PREFIX_URL_%%
 # Configure the verbosity of the brick (-1 = default)
