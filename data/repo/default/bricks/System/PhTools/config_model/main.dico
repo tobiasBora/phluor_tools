@@ -1,0 +1,7 @@
+# You can here configure the application
+# /!\ DON'T FORGET TO MODIFY THE FILE ./module.xml AND
+# ../package/replacement.qdico TO REGISTER ANY NEW CONFIGURATION
+
+# 
+DEFAULT_VERBOSE=%%_DEFAULT_VERBOSE_%%
+VERBOSE=-1
