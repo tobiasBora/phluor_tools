@@ -1,6 +1,5 @@
 * TODO List
 ** Easy and fast
-- Rename Users -> PhUsers and Db -> PhDb
 - Automatise documentation generation from sources
 - Import PhTools for client side too
 - Re-charge the configuration in config/ of a brick in src/
