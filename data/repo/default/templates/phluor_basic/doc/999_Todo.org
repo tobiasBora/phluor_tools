@@ -1,9 +1,8 @@
 * TODO List
 - Document the code
 - Automatise documentation generation from sources
-- Improve the make_clean to make it faster
 - Create the database at startup
 - Deal with a local database
 - Re-charge the configuration in config/ of a brick in src/
 - Auto-generate config/<...>/module.xml
-- Correctly deal with .mli
+- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli)
