@@ -1,0 +1,2 @@
+# Configure the verbose of the app
+VERBOSE=-1
