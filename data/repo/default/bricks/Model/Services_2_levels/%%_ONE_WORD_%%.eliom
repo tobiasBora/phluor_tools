@@ -27,6 +27,9 @@ let silent_conf = PhConfig.get_value dico_conf "SILENT_CONF"
 (* Ex: (here 3 is the priority of the message, see PhTools doc for
  more details) : printf 3 "Hello %s" name *)
 let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt
+{client{
+     let printf verb fmt = PhDebug.printf %brick_name %brick_verb verb fmt
+}}
 				     
 (* Display the configuration, usefull to debug *)
 let _ = PhConfig.print_config brick_name brick_verb
@@ -39,7 +42,7 @@ let _ = PhConfig.print_config brick_name brick_verb
 {client{
      let say_hello _ =
        Eliom_lib.alert "Hello, I love your example word %s !" %example;
-       Eliom_lib.debug "I am a debug print"
+       printf 6 "Here is a debug printf : %s !" %example
 }}
 
 (* And server side code... *)

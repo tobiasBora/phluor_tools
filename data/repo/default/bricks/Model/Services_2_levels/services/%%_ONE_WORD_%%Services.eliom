@@ -2,7 +2,9 @@
 To load it they just need to add a dependence to %%_NAMESPACE_%%/%%_SHORTNAME_%%/services and call the services included in %%_ONE_WORD_%%Services
 *)
 
-open PhTools (* Provide PhOpt, PhConfig, PhDebug... *)
+{shared{
+     open PhTools (* Provide PhOpt, PhConfig, PhDebug... *)
+}}
 
 (* Conf *)
 let dico = PhConfig.get_dico ()
@@ -16,6 +18,9 @@ let prefix_url = PhConfig.get_value_list dico "PREFIX_URL"
 (* Ex: (here 3 is the priority of the message, see PhTools doc for
  more details) : printf 3 "Hello %s" name *)
 let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt
+{client{
+     let printf verb fmt = PhDebug.printf %brick_name %brick_verb verb fmt
+}}
 
 (* ========================================== *)
 (* ============   Service List   ============ *)

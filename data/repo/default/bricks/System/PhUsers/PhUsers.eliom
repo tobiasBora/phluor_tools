@@ -1,12 +1,14 @@
 (* Note that some code is inspired by eliom-base-app, but beware *)
 (* it's not exactly the same code *)
 
-open Eliom_content.Html5.F
-open PhTools (* Provide PhDebug, PhOpt, PhConfig *)
-exception Already_exists
-exception No_such_user
-let (>>=) = Lwt.(>>=)
-let (>|=) = Lwt.(>|=)
+{shared{
+     open Eliom_content.Html5.F
+     open PhTools (* Provide PhDebug, PhOpt, PhConfig *)
+     exception Already_exists
+     exception No_such_user
+     let (>>=) = Lwt.(>>=)
+     let (>|=) = Lwt.(>|=)
+}}
 
 (* Getting conf : good way = use dico *)
 let dico_conf = PhConfig.get_dico ()
@@ -15,7 +17,10 @@ let brick_verb =
   PhConfig.get_value_opt dico_conf "VERBOSE"
   |> PhOpt.map int_of_string |> PhOpt.get (-1)
 
-let printf verb x = PhDebug.printf brick_name brick_verb verb x
+let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt
+{client{
+     let printf verb fmt = PhDebug.printf %brick_name %brick_verb verb fmt
+}}
 
 	       
 {shared{
@@ -162,7 +167,7 @@ module MCache =
 let user_of_uid uid = MCache.get uid
 let user_of_nickname nickname =
   try_lwt
-    printf 6 "User of nickname : %s" nickname;
+    printf 7 "User of nickname : %s" nickname;
     PhUsers_db.userv_of_nickname nickname >|= user_of_userv
   with PhDb.No_such_resource -> Lwt.fail No_such_user
 
