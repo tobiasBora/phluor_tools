@@ -1,8 +1,8 @@
 * TODO List
 ** Easy and fast
 - Automatise documentation generation from sources
-- Import PhTools for client side too
 - Re-charge the configuration in config/ of a brick in src/
+- <BUG> If dependance is installed, it's like if phluor_tools reinstall everything...
 
 ** Easy and long
 - Document everything
@@ -11,4 +11,6 @@
 - Create the database at startup
 - Deal with a local database
 - Auto-generate config/<...>/modules.xml
-- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli)
+
+** No sure it's possible to correct
+- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli ==> It doesn't work only after a mv of the eliomi file ==> Nothing to do with the Makefile ?)
