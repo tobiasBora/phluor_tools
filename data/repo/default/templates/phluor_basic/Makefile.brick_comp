@@ -80,14 +80,14 @@ ${ELIOM_SERVER_DIR}/%.cmi: %.eliomi
 
 # The last dependances are usefull to make sure the lib is recompiled if a dependence
 # has been recompiled just before
-${ELIOM_SERVER_DIR}/%.cmo: %.ml _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
+${ELIOM_SERVER_DIR}/%.cmo: %.ml _dep $(foreach brick, $(shell if [ -f _dep ]; then cat _dep; fi), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
-${ELIOM_SERVER_DIR}/%.cmo: %.eliom _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
+${ELIOM_SERVER_DIR}/%.cmo: %.eliom _dep $(foreach brick, $(shell if [ -f _dep ]; then cat _dep; fi), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMC} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
 
-${ELIOM_SERVER_DIR}/%.cmx: %.ml _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
+${ELIOM_SERVER_DIR}/%.cmx: %.ml _dep $(foreach brick, $(shell if [ -f _dep ]; then cat _dep; fi), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
-${ELIOM_SERVER_DIR}/%.cmx: %.eliom _dep $(foreach brick, $(shell cat _dep), $(SRC)$(brick)/_exec/server_part.cma)
+${ELIOM_SERVER_DIR}/%.cmx: %.eliom _dep $(foreach brick, $(shell if [ -f _dep ]; then cat _dep; fi), $(SRC)$(brick)/_exec/server_part.cma)
 	${ELIOMOPT} $(M_SERVER_INCLUDE) -c ${M_SERVER_PACKAGES} $(GENERATE_DEBUG) $<
 
 server: echo_server _exec/server_part.cma
