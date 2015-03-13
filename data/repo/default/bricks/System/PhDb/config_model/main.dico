@@ -1,0 +1,17 @@
+# Here are some basic configurations
+# Default verbose, same as config/System/PhTools/main.dico
+VERBOSE=-1
+
+UNIX_DOMAIN_SOCKET_DIR=%%_UNIX_DOMAIN_SOCKET_DIR_%%
+HOST=%%_HOST_%%
+PORT=%%_PORT_%%
+USER=%%_USER_%%
+# If specified choose the password in the given file, if not check the
+# variable PASSWORD. It must be in absolute or relative to the
+# project root folder.
+PASSWORD_FILE=password_db.txt
+# To change the password go in the above PASSWORD_FILE
+# or put it here but don't forget to clear the PASSWORD_FILE
+# variable
+PASSWORD=
+DATABASE=%%_DATABASE_%%

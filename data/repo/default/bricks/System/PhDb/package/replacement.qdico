@@ -1,0 +1,7 @@
+_UNIX_DOMAIN_SOCKET_DIR_ | What is the domain socket dir ? (Keep empty if you don't know what it is) | | -
+_HOST_ | What is the host ? | 127.0.0.1 | -
+_PORT_ | What is the port ? | 5432 | -
+_USER_ | What is the user ? (current user by default) | | -
+_PASSWORD_ | What is the password ? (if the password is defined in the environment variable you should remove the file password_db.txt generated at the project root) | | -
+_DATABASE_ | What is the database name ?
+

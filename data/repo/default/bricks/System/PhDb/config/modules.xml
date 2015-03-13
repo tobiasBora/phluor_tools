@@ -1,0 +1,11 @@
+<eliommodule module="modules/%%BRICK_NAME%%/server_part.cma">
+  <config key="BRICK_NAME" value="%%BRICK_NAME%%" />
+  <config key="VERBOSE" value="%%VERBOSE%%" />
+  <config key="UNIX_DOMAIN_SOCKET_DIR=" value="%%UNIX_DOMAIN_SOCKET_DIR%%" />
+  <config key="HOST" value="%%HOST%%" />
+  <config key="PORT" value="%%PORT%%" />
+  <config key="USER" value="%%USER%%" />
+  <config key="PASSWORD_FILE" value="%%PASSWORD_FILE%%" />
+  <config key="PASSWORD" value="%%PASSWORD%%" />
+  <config key="DATABASE" value="%%DATABASE%%" />
+</eliommodule>
