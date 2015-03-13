@@ -93,8 +93,17 @@ end
 let dico_conf = PhConfig_tmp.get_dico ()
 let brick_name = PhConfig_tmp.get_value dico_conf "BRICK_NAME"
 let brick_verb = PhConfig_tmp.get_value dico_conf "VERBOSE" |> int_of_string
-							     
-module PhDebug = struct
+let default_verbose =
+  (PhConfig_tmp.get_value dico_conf "DEFAULT_VERBOSE" |> int_of_string )
+
+{client{
+     let brick_name = %brick_name
+     let brick_verb = %brick_verb
+     let default_verbose = %default_verbose
+}}
+
+{shared{
+  module PhDebug = struct
 
   (** Debug mode :
 This module is supposed to give an easy way to print messages depending
@@ -120,11 +129,12 @@ It will be only changed in the current brick. (brick_verb in code)
 
    *)
 
-  let default_verbose =
-    ref (PhConfig_tmp.get_value dico_conf "DEFAULT_VERBOSE" |> int_of_string )
+  (* It is initialy defined outside because it needs server
+     specific functions *)
+  let get_default_verbose () = default_verbose
 
   let get_verbose brick_verb =
-    if brick_verb < 0 then !default_verbose
+    if brick_verb < 0 then get_default_verbose ()
     else brick_verb
 
   let can_write brick_verb verb =
@@ -176,6 +186,7 @@ It will be only changed in the current brick. (brick_verb in code)
        (format_string brick_name brick_verb verb)
        fmt
 end
+}}
 
 module PhConfig = struct
   (* The Config_tmp module is usefull because Config needs Debug,
