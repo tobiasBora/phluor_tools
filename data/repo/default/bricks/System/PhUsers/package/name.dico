@@ -1,3 +1,3 @@
-BRICK_NAME=System/Users
+BRICK_NAME=System/PhUsers
 # Useless for the moment
 BRICK_ONE_WORD=PhUsers
