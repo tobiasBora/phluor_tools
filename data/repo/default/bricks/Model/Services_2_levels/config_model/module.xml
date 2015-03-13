@@ -1,6 +1,7 @@
 <eliommodule module="modules/%%BRICK_NAME%%/server_part.cma">
   <config key="BRICK_NAME" value="%%BRICK_NAME%%" />
-  <config key="example" value="%%EXAMPLE%%" />
-  <config key="prefix_url" value="%%PREFIX_URL%%" />
-  <config key="silent_conf" value="%%SILENT_CONF%%" />
+  <config key="VERBOSE" value="%%VERBOSE%%" />
+  <config key="EXAMPLE" value="%%EXAMPLE%%" />
+  <config key="PREFIX_URL" value="%%PREFIX_URL%%" />
+  <config key="SILENT_CONF" value="%%SILENT_CONF%%" />
 </eliommodule>
