@@ -271,7 +271,7 @@ module Lwt_PGOCaml :
   end
 module Lwt_Query_ :
   sig
-    module PhDb :
+    module Db :
       sig
         type 'a t = 'a Lwt_PGOCaml.t
         type 'a monad = 'a Lwt_thread.t
@@ -421,23 +421,23 @@ module Lwt_Query_ :
         val bind : 'a monad -> ('a -> 'b monad) -> 'b monad
         val return : 'a -> 'a monad
       end
-    val query : 'b PhDb.t -> ?log:out_channel -> 'a Sql.query -> 'a PhDb.monad
+    val query : 'b Db.t -> ?log:out_channel -> 'a Sql.query -> 'a Db.monad
     val view :
-      'b PhDb.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a list PhDb.monad
+      'b Db.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a list Db.monad
     val view_one :
-      'b PhDb.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a PhDb.monad
+      'b Db.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a Db.monad
     val view_opt :
-      'b PhDb.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a option PhDb.monad
+      'b Db.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a option Db.monad
     val value :
-      'b PhDb.t ->
+      'b Db.t ->
       ?log:out_channel ->
       < nul : Sql.non_nullable; t : 'a #Sql.type_info; .. > Sql.t ->
-      'a PhDb.monad
+      'a Db.monad
     val value_opt :
-      'b PhDb.t ->
+      'b Db.t ->
       ?log:out_channel ->
       < nul : Sql.nullable; t : 'a #Sql.type_info; .. > Sql.t ->
-      'a option PhDb.monad
+      'a option Db.monad
   end
 module PGOCaml = Lwt_PGOCaml
 val connect : unit -> 'a Lwt_PGOCaml.t Lwt_PGOCaml.monad
@@ -449,31 +449,31 @@ val full_transaction_block :
 module Lwt_Query :
   sig
     module Db = Lwt_Query_.Db
-    val query : 'b PhDb.t -> ?log:out_channel -> 'a Sql.query -> 'a PhDb.monad
+    val query : 'b Db.t -> ?log:out_channel -> 'a Sql.query -> 'a Db.monad
     val view :
-      'b PhDb.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a list PhDb.monad
+      'b Db.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a list Db.monad
     val view_opt :
-      'b PhDb.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a option PhDb.monad
+      'b Db.t -> ?log:out_channel -> ('a, 'c) Sql.view -> 'a option Db.monad
     val value :
-      'b PhDb.t ->
+      'b Db.t ->
       ?log:out_channel ->
       < nul : Sql.non_nullable; t : 'a #Sql.type_info; .. > Sql.t ->
-      'a PhDb.monad
+      'a Db.monad
     val value_opt :
-      'b PhDb.t ->
+      'b Db.t ->
       ?log:out_channel ->
       < nul : Sql.nullable; t : 'a #Sql.type_info; .. > Sql.t ->
-      'a option PhDb.monad
-    val view_one : 'a PhDb.t -> ('b, 'c) Sql.view -> 'b Lwt.t
+      'a option Db.monad
+    val view_one : 'a Db.t -> ('b, 'c) Sql.view -> 'b Lwt.t
     val view_one_opt :
-      'a PhDb.t ->
-      ('b PhDb.t, 'c) Sql.view -> (('d, 'e) Sql.view -> 'd Lwt.t) option Lwt.t
+      'a Db.t ->
+      ('b Db.t, 'c) Sql.view -> (('d, 'e) Sql.view -> 'd Lwt.t) option Lwt.t
     val alter : 'a Lwt_PGOCaml.t -> string -> unit Lwt_PGOCaml.monad
   end
 val view : ('a, 'b) Sql.view -> 'a list Lwt.t
 val view_one : ('a, 'b) Sql.view -> 'a Lwt.t
 val view_one_opt :
-  ('a Lwt_Query.PhDb.t, 'b) Sql.view ->
+  ('a Lwt_Query.Db.t, 'b) Sql.view ->
   (('c, 'd) Sql.view -> 'c Lwt.t) option Lwt.t
 val query : 'a Sql.query -> 'a Lwt.t
 val value :
