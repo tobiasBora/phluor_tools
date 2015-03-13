@@ -148,15 +148,21 @@ run:
 # Compil and run
 r: all run
 
+# A fast version of clean, may miss some libraries. To be sure there isn't any problem please use "make clean"
+cleanf:
+	$(foreach brick, $(shell cat _dep), echo "--- Cleaning $(brick)"; cd src/$(brick)/; make clean_all; cd $(PWD);)
+	rm -rf www/ _dep _dep_lib _client _dep_no_uniq
+
 clean:
 # with this make clean_all, several libraries may be clean several times,
 # and an infinite loop could appear if the inclusion is cyclic, but a simple
 # clean could forgot some bricks if _dep is bad due to a wrong configuration
 # so this could avoid lot's of problems.
 	$(foreach brick, $(shell cat bricks_included.txt) $(shell cat _dep), echo "--- Cleaning $(brick)"; cd src/$(brick)/; make clean_all; cd $(PWD);)
-	rm -rf www/ _dep _dep_lib
+	rm -rf www/ _dep _dep_lib _client _dep_no_uniq
 
 clean_only_current:
-	rm -rf www/ _dep _dep_lib
+	rm -rf www/ _dep _dep_lib _client _dep_no_uniq
+
 
 PHONY: all compil_bricks copy_bricks run r clean clean_all update_static update_client_part update_server_part update_config

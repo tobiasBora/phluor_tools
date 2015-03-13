@@ -52,11 +52,6 @@ depends:
 	@echo "- [$(BRICK_NAME)] Dependencies : client part"
 	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) && cd $(dep) && make && cd $(PWD) &&) true
 
-
-test_separate_compilation:
-	${ELIOMC} $(M_SERVER_INCLUDE) -i ${M_SERVER_PACKAGES} TestHello.eliom
-
-
 ##----------------------------------------------------------------------
 ## Server side compilation
 
@@ -117,9 +112,6 @@ $(DEPSDIR)/%.server: % | $(DEPSDIR)
 $(DEPSDIR)/%.client: % | $(DEPSDIR)
 	$(ELIOMDEP) -client ${M_CLIENT_PACKAGES} $< > $@
 
-$(DEPSDIR)/%.client: % | $(DEPSDIR)
-	$(ELIOMDEP) -client $(CLIENT_INC) $< > $@
-
 $(DEPSDIR):
 	mkdir $@
 
@@ -143,8 +135,8 @@ ${ELIOM_CLIENT_DIR}/%.cmi: %.eliomi
 
 client: echo_client $(call objs,$(ELIOM_CLIENT_DIR),cmo,$(CLIENT_SOURCES)) | _client/
 
-_client:
-	mkdir _client
+_client/:
+	mkdir _client/
 
 echo_client:
 	@echo "--- [$(BRICK_NAME)] Building client part"
