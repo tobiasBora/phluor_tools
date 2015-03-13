@@ -1,6 +1,0 @@
-NAME=Default_name
-# It's often better to configure this file with the replacement.qdico
-# But you can put default settings here without putting them in the qdico file
-NAMEDIRTY=SuperDirtyMan
-# Default url
-URL=

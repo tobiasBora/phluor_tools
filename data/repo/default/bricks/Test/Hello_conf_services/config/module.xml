@@ -1,5 +1,0 @@
-<eliommodule module="modules/%%BRICK_NAME%%/server_part.cma">
-  <config key="name" value="%%NAME%%" />
-  <config key="name_dirty" value="%%NAMEDIRTY%%" />
-  <config key="url" value="%%URL%%" />
-</eliommodule>
