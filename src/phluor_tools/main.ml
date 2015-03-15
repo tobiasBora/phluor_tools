@@ -78,11 +78,14 @@ let add_brick copts brick_name =
 let remove_brick copts brick_name =
   (* Get the brick name *)
   let brick =
-    if brick_name <> "" then brick_name
-    else
-      let open Phluor_file_operation in
-      let l = get_list_obj `Brick in
-      choose_in_list l
+    let open Phluor_file_operation in
+    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
+    let l = get_list_obj `Brick in
+    l
+    |> List.filter (fun (br,_) ->
+		    try let _ = Str.search_forward reg br 0 in true
+		    with Not_found -> false)
+    |> choose_in_list
   in
   Phluor_add_brick.remove_brick brick
   
