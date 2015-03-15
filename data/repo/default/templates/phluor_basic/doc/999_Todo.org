@@ -2,7 +2,7 @@
 ** Easy and fast
 - Automatise documentation generation from sources
 - Re-charge the configuration in config/ of a brick in src/
-- <BUG> If dependance is installed, it's like if phluor_tools reinstall everything...
+- Add a way to remove a library
 
 ** Easy and long
 - Document everything
