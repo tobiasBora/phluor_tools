@@ -118,6 +118,8 @@ putting in name.dico an entry REGISTERED_NAME.
 	  if FileUtil.(test Exists perso_folder)
 	  then begin
 	      Printf.printf "Saving the old conf...\n";
+	      FileUtil.rm ~recurse:true
+			  ["config" // (registered_name ^ ".bak")];
 	      F.copy_and_replace
 		 []
 		 []
@@ -136,7 +138,7 @@ putting in name.dico an entry REGISTERED_NAME.
 	  Printf.printf "Running post_install.sh...\n%!";
 	  let cwd = Sys.getcwd () in
 	  Sys.chdir perso_folder;
-	  Sys.command ("bash post_install.sh");
+	  let _ = Sys.command ("bash post_install.sh") in
 	  Sys.chdir cwd
 	end;
       Printf.printf "%s was installed successfully.\n" brick_name;
@@ -208,5 +210,8 @@ let remove_brick ?(remove_config=true) brick_name =
       FileUtil.rm ~recurse:true ["src/" // brick_name];
       if remove_config then
 	FileUtil.rm ~recurse:true ["config/" // brick_name]
-    );
+    )
   
+let reinstall_brick brick_name =
+  remove_brick ~remove_config:false brick_name;
+  add_brick brick_name
