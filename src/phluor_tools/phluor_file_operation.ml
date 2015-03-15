@@ -378,10 +378,6 @@ let get_list_obj obj_type =
   let rootf = get_rootfilename_of_obj obj_type in
   repo_list
   |> List.map (fun repo -> repo // prefix)
-  (* |> List.map (fun path -> FileUtil.(ls path *)
-  (* 				     |> filter Is_dir *)
-  (* 				     |> List.map *)
-  (* 					  (FilePath.make_relative path))) *)
   |> List.map (fun path -> FileUtil.(find True path (fun x y -> y :: x) []
 				     |> filter Is_dir
 				     |> List.filter

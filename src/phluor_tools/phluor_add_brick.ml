@@ -170,7 +170,10 @@ putting in name.dico an entry REGISTERED_NAME.
 (** This function installs dependencies too. Register can be `Ask, `Yes or `No, and is applied only for the main brick (the others are included by the first one anyway) *)
 let add_brick ?register brick_name =
   Printf.printf "--- Searching root of project...\n";
-  F.(go_root `Template); (* The main project must contain a root file in it's root. With this line it's useless to go to the root of the main website before installing a package *)
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  F.(go_root `Template);
   Printf.printf "--- Checking dependencies...\n";
   get_brick_dependencies brick_name
   |> S.iter (fun br ->
@@ -190,3 +193,20 @@ let add_brick ?register brick_name =
     |> S.iter print_endline
   with Sys_error _ -> ()
 	      
+let remove_brick ?(remove_config=true) brick_name =
+  Printf.printf "--- Searching root of project...\n";
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  F.(go_root `Template);
+  if not FileUtil.(test Exists
+		    ("src/" // brick_name // "root_brick"))
+  then
+    Printf.printf "Bricks %s not installed.\n" brick_name
+  else
+    (
+      FileUtil.rm ~recurse:true ["src/" // brick_name];
+      if remove_config then
+	FileUtil.rm ~recurse:true ["config/" // brick_name]
+    );
+  
