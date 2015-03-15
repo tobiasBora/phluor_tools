@@ -1,8 +1,7 @@
 * TODO List
 ** Easy and fast
 - Automatise documentation generation from sources
-- Re-charge the configuration in config/ of a brick in src/
-- Add a way to remove a library
+- Auto-generate config/<...>/modules.xml ==> Idea : generate it during the creation of the local config
 
 ** Easy and long
 - Document everything
@@ -10,7 +9,6 @@
 ** May be hard/long to do
 - Create the database at startup
 - Deal with a local database
-- Auto-generate config/<...>/modules.xml
 
 ** No sure it's possible to correct
 - Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli ==> It doesn't work only after a mv of the eliomi file ==> Nothing to do with the Makefile ?)
