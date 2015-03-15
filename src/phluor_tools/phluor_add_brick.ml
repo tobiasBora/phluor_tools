@@ -1,4 +1,4 @@
-(* NB : I try to use as much as possible the library sequences (see in
+(* NB : I try to use as much as possible the library Sequence (see in
 the current folder) from compagnion-cube instead of
 Batteries. Sequence is faster, and I made a little module which deal
 with files better than BatEnum (the BatEnum library don't close the
@@ -10,12 +10,14 @@ module S = Sequence
 let (//) = Filename.concat
 
 let reg_services = Str.regexp "/services$"
-			     
+
+			      
 (* TODO : check ocaml dependencies *)
 let get_brick_dependencies brick_name0 =
   (* Remove /services in order to install the parent brick when
      the brick needs services. (E.g: Acme/Mybrick/services installs Acme/Mybrick *)
   let brick_name = Str.global_replace reg_services "" brick_name0 in
+  (* Tries to find all dependencies of the brick *)
   let rec check_dep_aux max_level_rec curr_rec brick_name =
     if curr_rec > max_level_rec then failwith "Too many level of recursion."
     else if Str.(string_match (regexp "^[\t ]+$") brick_name 0) then S.empty
@@ -34,6 +36,7 @@ let get_brick_dependencies brick_name0 =
       else S.singleton brick_name
   in check_dep_aux 100 0 brick_name
 
+(* TODO : breack this big function into smaller sub functions *)
 (** This function doesn't mind dependencies *)
 let add_one_brick ?(register=`Ask) brick_name0 =
   (* Remove /services in order to install the parent brick when
@@ -171,7 +174,12 @@ let add_brick ?register brick_name =
   Printf.printf "--- Checking dependencies...\n";
   get_brick_dependencies brick_name
   |> S.iter (fun br ->
-	     if br = brick_name then add_one_brick br ?register
+	     if FileUtil.(test Exists
+			       ("src/" // br // "root_brick"))
+	     then
+	       Printf.printf "Bricks %s already installed.\n" br
+	     else if br = brick_name then
+	       add_one_brick br ?register
 	     else add_one_brick br ~register:`No);
   
   (* Display a short text message *)
