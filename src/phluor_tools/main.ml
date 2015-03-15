@@ -76,6 +76,23 @@ let add_brick copts brick_name =
   in
   Phluor_add_brick.add_brick brick
 
+let get_brick brick_name =
+  (* Deal with bricks that have been installed manually
+      (not in the repository) *)
+  if brick_name <> ""
+     && FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
+  then
+    brick_name
+  else
+    let open Phluor_file_operation in
+    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
+    let l = get_list_obj `Brick in
+    l
+    |> List.filter (fun (br,_) ->
+		    try let _ = Str.search_forward reg br 0 in true
+		    with Not_found -> false)
+    |> choose_in_list
+     
 (* The brick_name is facultatif *)
 let remove_brick copts brick_name =
   Printf.printf "--- Searching root of project...\n";
@@ -84,23 +101,7 @@ let remove_brick copts brick_name =
       website before installing a package *)
   Phluor_file_operation.(go_root `Template);
   (* Get the brick name *)
-  let brick =
-    (* Deal with bricks that have been installed manually
-      (not in the repository) *)
-    if brick_name <> ""
-       && FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
-    then
-      brick_name
-    else
-      let open Phluor_file_operation in
-      let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
-      let l = get_list_obj `Brick in
-      l
-      |> List.filter (fun (br,_) ->
-		      try let _ = Str.search_forward reg br 0 in true
-		      with Not_found -> false)
-      |> choose_in_list
-  in
+  let brick = get_brick brick_name in
   if
     Phluor_file_operation.ask_yes_no
       ~default:"n"
@@ -124,7 +125,16 @@ let reinstall_brick copts brick_name =
   in
   Phluor_add_brick.reinstall_brick brick
   
-
+let update_config_brick copts brick_name =
+  Printf.printf "--- Searching root of project...\n";
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  Phluor_file_operation.(go_root `Template);
+  (* Get the brick name *)
+  let brick = get_brick brick_name in
+  Phluor_add_brick.update_local_config brick
+  
 		
 let help copts man_format cmds topic = match topic with
 | None -> `Help (`Pager, None) (* help about the program. *)
@@ -282,6 +292,19 @@ let reinstall_brick_cmd =
   Term.(pure reinstall_brick $ copts_t $ brick_name),
   Term.info "reinstall_brick" ~sdocs:copts_sect ~doc ~man
 
+let update_config_brick_cmd = 
+  let doc = "Update the brick config in config/<brick name> from the folder in src/<brick name>/config_model." in
+  let man = [
+    `S "DESCRIPTION";
+    `P "Reinstall a brick config from the current website. The brick name is facultatif, if you forget it the whole list of bricks will be listed."] @ help_secs
+  in
+  let brick_name = 
+    let doc = "Name of the brick (facultatif)." in
+    Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
+  in
+  Term.(pure update_config_brick $ copts_t $ brick_name),
+  Term.info "update_config_brick" ~sdocs:copts_sect ~doc ~man
+
 	    
 let help_cmd = 
   let topic = 
@@ -302,7 +325,7 @@ let default_cmd =
   Term.(ret (pure (fun _ -> `Help (`Pager, None)) $ copts_t)),
   Term.info "phluor_tools" ~version:"1.1.0" ~sdocs:copts_sect ~doc ~man
        
-let cmds = [create_website_cmd; dir_cmd; copy_cmd; add_brick_cmd; remove_brick_cmd; reinstall_brick_cmd; help_cmd]
+let cmds = [create_website_cmd; dir_cmd; copy_cmd; add_brick_cmd; remove_brick_cmd; reinstall_brick_cmd; update_config_brick_cmd; help_cmd]
 
 let () = match Term.eval_choice default_cmd cmds with 
 | `Error _ -> exit 1 | _ -> exit 0

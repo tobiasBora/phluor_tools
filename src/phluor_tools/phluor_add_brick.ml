@@ -36,6 +36,54 @@ let get_brick_dependencies brick_name0 =
       else S.singleton brick_name
   in check_dep_aux 100 0 brick_name
 
+let update_local_brick_config dest dico is_model perso_folder registered_name =
+  (* Generation of the folder config, from a new dico in model mode *)
+  if FileUtil.(test Exists (dest // "config_model"))
+  then
+    begin
+      let new_dico =	(* Generate the dico from qdico *)
+	if not is_model then dico
+	else
+	  begin
+	    Printf.printf "-- Configuring the new model...\n";
+	    (try
+		F.(dico_of_question_file
+		     (dest // "package" // "replacement.qdico"))
+	      with _ -> [])
+	    @ (try
+		  F.(dico_of_file (dest // "package" // "info.dico"))
+		with _ -> [])
+	  end
+      in
+      (* Save an eventual older configuration file *)
+      if FileUtil.(test Exists perso_folder)
+      then begin
+	  Printf.printf "Saving the old conf...\n";
+	  FileUtil.rm ~recurse:true
+		      ["config" // (registered_name ^ ".bak")];
+	  F.copy_and_replace
+	    []
+	    []
+	    perso_folder
+	    ("config" // (registered_name ^ ".bak"));
+	  FileUtil.rm ~recurse:true [perso_folder]
+	end;
+      (* Copy the config_model into the user config path *)
+      F.copy_and_replace_inside new_dico new_dico
+				(dest // "config_model")
+				perso_folder;
+      Printf.printf "The configuration is now in the folder %s.\n" perso_folder
+    end;
+  if FileUtil.(test Exists (perso_folder // "post_install.sh"))
+  then begin
+      Printf.printf "Running post_install.sh...\n%!";
+      let cwd = Sys.getcwd () in
+      Sys.chdir perso_folder;
+      let _ = Sys.command ("bash post_install.sh") in
+      Sys.chdir cwd
+    end
+
+		   
 (* TODO : breack this big function into smaller sub functions *)
 (** This function doesn't mind dependencies *)
 let add_one_brick ?(register=`Ask) brick_name0 =
@@ -96,51 +144,9 @@ putting in name.dico an entry REGISTERED_NAME.
       if FileUtil.(test Exists (src_dir // "config_model"))
       then
 	F.copy_and_replace [] [] (src_dir // "config_model") dest;
-      (* Generation of the folder config, from a new dico in model mode *)
-      if FileUtil.(test Exists (dest // "config_model"))
-      then
-	begin
-	  let new_dico =	(* Generate the dico from qdico *)
-	    if not is_model then dico
-	    else
-	      begin
-		Printf.printf "-- Configuring the new model...\n";
-		(try
-		    F.(dico_of_question_file
-			 (dest // "package" // "replacement.qdico"))
-		  with _ -> [])
-		@ (try
-		      F.(dico_of_file (dest // "package" // "info.dico"))
-		    with _ -> [])
-		    end
-	  in
-	  (* Save an eventual older configuration file *)
-	  if FileUtil.(test Exists perso_folder)
-	  then begin
-	      Printf.printf "Saving the old conf...\n";
-	      FileUtil.rm ~recurse:true
-			  ["config" // (registered_name ^ ".bak")];
-	      F.copy_and_replace
-		 []
-		 []
-		 perso_folder
-		 ("config" // (registered_name ^ ".bak"));
-	      FileUtil.rm ~recurse:true [perso_folder]
-	    end;
-	  (* Copy the config_model into the user config path *)
-	  F.copy_and_replace_inside new_dico new_dico
-				    (dest // "config_model")
-				    perso_folder;
-	  Printf.printf "The configuration is now in the folder %s.\n" perso_folder
-	end;
-      if FileUtil.(test Exists (perso_folder // "post_install.sh"))
-      then begin
-	  Printf.printf "Running post_install.sh...\n%!";
-	  let cwd = Sys.getcwd () in
-	  Sys.chdir perso_folder;
-	  let _ = Sys.command ("bash post_install.sh") in
-	  Sys.chdir cwd
-	end;
+
+      update_local_brick_config dest dico is_model perso_folder registered_name;
+
       Printf.printf "%s was installed successfully.\n" brick_name;
       (* If the brick is registed in bricks_included.txt, it's possible to
      have a different register name (usefull for models). The new name
@@ -217,3 +223,23 @@ let remove_brick ?(remove_config=true) brick_name =
 let reinstall_brick brick_name =
   remove_brick ~remove_config:false brick_name;
   add_brick brick_name
+
+let update_local_config brick_name =
+  if FileUtil.(test Exists ("src/" // brick_name)) then
+    let dico_conf =
+      try
+	F.(dico_of_file ("src/" // brick_name // "package" // "info.dico"))
+      with _ -> [] in
+    let dico =
+      F.(dico_of_question_file
+	   ~avoid_error:true
+	   ("src/" // brick_name // "package" // "replacement.qdico"))
+      @ dico_conf in
+    update_local_brick_config
+      ("src/" // brick_name)
+      dico
+      false
+      ("config/" // brick_name)
+      brick_name
+  else
+    Printf.printf "The brick %s doesn't exist." brick_name
