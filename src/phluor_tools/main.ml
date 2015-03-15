@@ -12,6 +12,8 @@
 
  *)
 
+let (//) = Filename.concat
+
 (* Common options *)
 type copts = {debug:bool; verbose:int}
 
@@ -76,18 +78,36 @@ let add_brick copts brick_name =
 
 (* The brick_name is facultatif *)
 let remove_brick copts brick_name =
+  Printf.printf "--- Searching root of project...\n";
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  Phluor_file_operation.(go_root `Template);
   (* Get the brick name *)
   let brick =
-    let open Phluor_file_operation in
-    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
-    let l = get_list_obj `Brick in
-    l
-    |> List.filter (fun (br,_) ->
-		    try let _ = Str.search_forward reg br 0 in true
-		    with Not_found -> false)
-    |> choose_in_list
+    (* Deal with bricks that have been installed manually
+      (not in the repository) *)
+    if brick_name <> ""
+       && FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
+    then
+      brick_name
+    else
+      let open Phluor_file_operation in
+      let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
+      let l = get_list_obj `Brick in
+      l
+      |> List.filter (fun (br,_) ->
+		      try let _ = Str.search_forward reg br 0 in true
+		      with Not_found -> false)
+      |> choose_in_list
   in
-  Phluor_add_brick.remove_brick brick
+  if
+    Phluor_file_operation.ask_yes_no
+      ~default:"n"
+      (Printf.sprintf "Are you sure you wan't to remove %s ? (y/n)" brick)
+  then
+    Phluor_add_brick.remove_brick brick
+  else ()
 
 (* The brick_name is facultatif *)
 let reinstall_brick copts brick_name =

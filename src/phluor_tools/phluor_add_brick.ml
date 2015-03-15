@@ -148,23 +148,24 @@ putting in name.dico an entry REGISTERED_NAME.
      any dico reference from the above dico.
        *)
       if register <> `No then
-	(match if register = `Yes then "y"
-	       else F.ask
-		      ~default:"y"
-		      ~regexp:("^[ynYN]$","Please answer y (yes) or n (no)")
-		      "\nWould you like to register the brick in bricks_included.txt\nto be load it in the website ? (y/n)" with
-	   "y" | "Y" ->
-		  if not (Easyfile.seq_of_file "bricks_included.txt"
-			  |> S.mem brick_name) then
-		    begin
-		      Easyfile.write_in_file ~mode:[Open_append]
-					     "bricks_included.txt"
-					     (S.singleton registered_name);
-		      Printf.printf "The brick %s has been added in bricks_included.txt\n" brick_name
-		    end
-		  else
-		    Printf.printf "The brick %s is already present in bricks_included.txt\n" brick_name
-	   | _ -> Printf.printf "The brick %s won't be added in bricks_included.txt\n" brick_name
+	(
+	  if (register = `Yes)
+	     || F.ask_yes_no ~default:"y"
+			     "\nWould you like to register the brick in bricks_included.txt\nto be load it in the website ? (y/n)"
+	  then
+	    begin
+	      if not (Easyfile.seq_of_file "bricks_included.txt"
+		      |> S.mem brick_name) then
+		begin
+		  Easyfile.write_in_file ~mode:[Open_append]
+					 "bricks_included.txt"
+					 (S.singleton registered_name);
+		  Printf.printf "The brick %s has been added in bricks_included.txt\n" brick_name
+		end
+	      else
+		Printf.printf "The brick %s is already present in bricks_included.txt\n" brick_name
+	    end
+	  else Printf.printf "The brick %s won't be added in bricks_included.txt\n" brick_name
 	)
     end  
   
@@ -209,7 +210,8 @@ let remove_brick ?(remove_config=true) brick_name =
     (
       FileUtil.rm ~recurse:true ["src/" // brick_name];
       if remove_config then
-	FileUtil.rm ~recurse:true ["config/" // brick_name]
+	FileUtil.rm ~recurse:true ["config/" // brick_name];
+      Printf.printf "The brick %s has been successfully removed." brick_name
     )
   
 let reinstall_brick brick_name =

@@ -86,7 +86,7 @@ let dico_of_file ?(comment=true) ?(sep_l=["=";"\\?=";"\\+=";":="]) ?(avoid_error
 		 try
 		   (* A first search is necessary to allow empty lines like
                       "VAR=" *)
-		   Str.search_forward (Str.regexp sep) line 0;
+		   let _ = Str.search_forward (Str.regexp sep) line 0 in
 		   Str.split (Str.regexp sep) line
 		 with Not_found -> try_sep r
 	    in try_sep sep_l
@@ -124,6 +124,16 @@ let rec ask ?default ?regexp question =
   with
     Failure str -> (printf "%s\n" str; ask ?default ?regexp question)
   | _ -> (printf "You have to fill this field.\n"; ask ?default ?regexp question)
+
+let ask_yes_no ?(default="n") question =
+  match
+    ask
+      ~default
+      ~regexp:("^[ynYN]$","Please answer y (yes) or n (no)")
+      question
+  with
+    "y" | "Y" -> true
+    | _ -> false
 
 	   
 let rec reverse_pop l = match l with
