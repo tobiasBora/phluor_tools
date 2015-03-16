@@ -40,8 +40,8 @@ compil_bricks:
 
 client_part/main_js.js: compil_bricks _dep _dep_lib
 	mkdir -p client_part/bricks/
-# We create a js file from all cmo files
-	$(JS_OF_ELIOM) -o client_part/main_js.js $(foreach brick_cmo, $(shell cat _dep_lib), $(brick_cmo))
+# We create a js file from all cmo files. The first look include all -packages, while the second one include all .cmo
+	$(JS_OF_ELIOM) -linkall -o client_part/main_js.js $(foreach brick_cmo, $(shell cat _dep), $(shell if [ ! -z $(shell cat "src/$(brick_cmo)/package/lib_depends.txt") ]; then echo -n "-package "; cat "src/$(brick_cmo)/package/lib_depends.txt"; fi )) $(foreach brick_cmo, $(shell cat _dep_lib), $(brick_cmo)) 
 
 # Create a new www/ folder and save the older
 new_www:
