@@ -1,38 +1,13 @@
-(* TODO : documentation *)
-{shared{
-  open Eliom_lib
-  open Eliom_content
-  open Html5.D
-}}
-
+(* Documention in .eliomi *)
 
 {shared{
-     module PhOpt = struct
-       exception Is_not_some
-
-       let get default x = match x with
-	   Some v -> v
-	 | None -> default
-		     
-       let get_exn ?(exn=Is_not_some) x = match x with
-	   Some v -> v
-	 | None -> raise exn
-	 
-       let map f x = match x with
-	   Some v -> Some (f v)
-	 | None -> None
-
-       let is_none x = match x with None -> true | _ -> false
-
-       let is_some x = not (is_none x)
-	   
-			 
-     end
+     module CCOpt = CCOpt
 }}		 
 
 (* The Config_tmp module is usefull because Config needs Debug,
    and Debug needs Config...  *)
 module PhConfig_tmp = struct
+  type dico = (string * string) list
   exception Config_item_not_found of string 
 
   (* These functions shouldn't be used by the user... There are present only for tests *)
@@ -192,7 +167,7 @@ module PhConfig = struct
   (* The Config_tmp module is usefull because Config needs Debug,
      and Debug needs Config...  *)
   include PhConfig_tmp
-	      
+    
   let print_config brick_name brick_verb =
     PhDebug.printf brick_name
 		 brick_verb

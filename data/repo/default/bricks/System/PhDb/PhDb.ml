@@ -1,7 +1,7 @@
 open Eliom_lib.Lwt_ops
 open Eliom_lib
 open Eliom_content
-open PhTools (*Provide PhOpt, PhConfig and PhDebug *)
+open PhTools (*Provide CCOpt, PhConfig and PhDebug *)
 
 	      
 (* ======================================== *)
@@ -13,7 +13,7 @@ let dico_conf = PhConfig.get_dico ()
 let brick_name = PhConfig.get_value dico_conf "BRICK_NAME"
 let brick_verb =
   PhConfig.get_value_opt dico_conf "VERBOSE"
-  |> PhOpt.map int_of_string |> PhOpt.get (-1)
+  |> CCOpt.map int_of_string |> CCOpt.get (-1)
 let unix_domain_socket_dir =
   PhConfig.get_value_opt dico_conf "UNIX_DOMAIN_SOCKET_DIR"
 and host = PhConfig.get_value_opt dico_conf "HOST"
@@ -222,7 +222,7 @@ module Cache_f = struct
 end
 
 let _ =
-  let open PhOpt in
+  let open CCOpt in
   (* Usually it's generated with PhConfig.print_config, but not here
      because it's not stricly taken from the dictionnary, the data are
      manipulated before *)  

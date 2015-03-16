@@ -3,7 +3,7 @@
 
 {shared{
      open Eliom_content.Html5.F
-     open PhTools (* Provide PhDebug, PhOpt, PhConfig *)
+     open PhTools (* Provide PhDebug, CCOpt, PhConfig *)
      exception Already_exists
      exception No_such_user
      let (>>=) = Lwt.(>>=)
@@ -15,7 +15,7 @@ let dico_conf = PhConfig.get_dico ()
 let brick_name = PhConfig.get_value dico_conf "BRICK_NAME"
 let brick_verb =
   PhConfig.get_value_opt dico_conf "VERBOSE"
-  |> PhOpt.map int_of_string |> PhOpt.get (-1)
+  |> CCOpt.map int_of_string |> CCOpt.get (-1)
 
 let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt
 {client{

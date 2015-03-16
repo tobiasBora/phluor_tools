@@ -11,4 +11,4 @@
 - Deal with a local database
 
 ** No sure it's possible to correct
-- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli ==> It doesn't work only after a mv of the eliomi file ==> Nothing to do with the Makefile ?)
+- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli ==> It doesn't work only after a mv of the eliomi file that may keep the old timestamp ==> Nothing to do with the Makefile ?)

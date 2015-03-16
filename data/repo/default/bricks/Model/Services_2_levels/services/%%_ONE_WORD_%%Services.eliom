@@ -3,7 +3,7 @@ To load it they just need to add a dependence to %%_NAMESPACE_%%/%%_SHORTNAME_%%
 *)
 
 {shared{
-     open PhTools (* Provide PhOpt, PhConfig, PhDebug... *)
+     open PhTools (* Provide CCOpt, PhConfig, PhDebug... *)
 }}
 
 (* Conf *)
@@ -11,7 +11,7 @@ let dico = PhConfig.get_dico ()
 let brick_name = PhConfig.get_value dico_conf "BRICK_NAME"
 let brick_verb =
   PhConfig.get_value_opt dico_conf "VERBOSE"
-  |> PhOpt.map int_of_string |> PhOpt.get (-1)
+  |> CCOpt.map int_of_string |> CCOpt.get (-1)
 let prefix_url = PhConfig.get_value_list dico "PREFIX_URL"
 
 (* Create a nice printf debug function *)

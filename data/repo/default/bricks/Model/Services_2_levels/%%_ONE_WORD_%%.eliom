@@ -7,7 +7,7 @@
   open Eliom_lib
   open Eliom_content
   open Html5.D
-  open PhTools (* Provide PhOpt, PhConfig, PhDebug... *)
+  open PhTools (* Provide CCOpt, PhConfig, PhDebug... *)
 }}
 	     
 (* Getting conf : good way = use dico *)
@@ -15,7 +15,7 @@ let dico_conf = PhConfig.get_dico ()
 let brick_name = PhConfig.get_value dico_conf "BRICK_NAME"
 let brick_verb =
   PhConfig.get_value_opt dico_conf "VERBOSE"
-  |> PhOpt.map int_of_string |> PhOpt.get (-1)
+  |> CCOpt.map int_of_string |> CCOpt.get (-1)
 
 (* Here are some examples of configuration.
    You can remove them if you don't need them *)
