@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="PhTools.PhDebug.html">
+<link rel="Up" href="PhTools.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="PhTools" rel="Chapter" href="PhTools.html"><link title="Configuration" rel="Section" href="#1_Configuration">
+<link title="Get the dictionary" rel="Subsection" href="#2_Getthedictionary">
+<link title="Get the configuration " rel="Subsection" href="#2_Gettheconfiguration">
+<link title="Advanced functions" rel="Subsection" href="#2_Advancedfunctions">
+<title>PhTools.PhConfig</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="PhTools.PhDebug.html" title="PhTools.PhDebug">Previous</a>
+&nbsp;<a class="up" href="PhTools.html" title="PhTools">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_PhTools.PhConfig.html">PhTools.PhConfig</a></h1>
+
+<pre><span class="keyword">module</span> PhConfig: <code class="code">sig</code> <a href="PhTools.PhConfig.html">..</a> <code class="code">end</code></pre><div class="info module top">
+This module is useful to configure a brick.<br>
+</div>
+<hr width="100%">
+<br>
+<h1 id="1_Configuration">Configuration</h1>
+       This module is useful to configure a brick. Put in a dico file all variables in <code class="code">config/&lt;brick&gt;/main.dico</code> (or if you want to package the brick in <code class="code">src/&lt;brick&gt;/config_model/main.dico</code>) and you will be able to load it here. Please don't forget to also edit the file <code class="code">config/&lt;brick&gt;/modules.xml</code> to apply any modification, and <code class="code">src/&lt;brick&gt;/package/replacement.qdico</code> if you want to ask some questions to the user when you install the brick.<br>
+<br>
+<h2 id="2_Getthedictionary">Get the dictionary</h2><br>
+
+<pre><span id="EXCEPTIONConfig_item_not_found"><span class="keyword">exception</span> Config_item_not_found</span> <span class="keyword">of</span> <code class="type">string</code></pre>
+<div class="info ">
+Error raised when you ask for an item not present in the config file. (usually you forgot to report in the <code class="code">config/&lt;brick&gt;/modules.xml</code> file.)<br>
+</div>
+
+<pre><span id="TYPEdico"><span class="keyword">type</span> <code class="type"></code>dico</span> = <code class="type">(string * string) list</code> </pre>
+<div class="info ">
+Main type. A dico is a set of couple (key,value) loaded from the xml configuration file. (inserted in <code class="code">www/run_server.conf</code>)<br>
+</div>
+
+
+<pre><span id="VALget_dico"><span class="keyword">val</span> get_dico</span> : <code class="type">unit -> <a href="PhTools.PhConfig.html#TYPEdico">dico</a></code></pre><div class="info ">
+This function load a dico from the<br>
+</div>
+<br>
+<h2 id="2_Gettheconfiguration">Get the configuration </h2><br>
+
+<pre><span id="VALget_value"><span class="keyword">val</span> get_value</span> : <code class="type"><a href="PhTools.PhConfig.html#TYPEdico">dico</a> -> string -> string</code></pre><div class="info ">
+<code class="code">get_value dico key</code> get in the dico the key <code class="code">key</code>.<br>
+<b>Raises</b> <code>Config_item_not_found</code> <code class="code">key</code> if the key isn't in the dico.<br>
+</div>
+
+<pre><span id="VALget_value_opt"><span class="keyword">val</span> get_value_opt</span> : <code class="type"><a href="PhTools.PhConfig.html#TYPEdico">dico</a> -> string -> string option</code></pre><div class="info ">
+Same as <code class="code">get</code> but return <code class="code">None</code> if the value is empty or not present<br>
+</div>
+
+<pre><span id="VALget_value_list"><span class="keyword">val</span> get_value_list</span> : <code class="type"><a href="PhTools.PhConfig.html#TYPEdico">dico</a> -> ?sep:string -> string -> string list</code></pre><div class="info ">
+<code class="code">get_value_list dico ~sep key</code> will return a list of item that are separeted by <code class="code">sep</code> (by default, <code class="code">sep = '/'</code>). It is useful to get a prefix url for example.<br>
+<b>Raises</b> <code>Config_item_not_found</code> if the key isn't in the dico.<br>
+</div>
+
+<pre><span id="VALget_value_list_opt"><span class="keyword">val</span> get_value_list_opt</span> : <code class="type"><a href="PhTools.PhConfig.html#TYPEdico">dico</a> -> ?sep:string -> string -> string list option</code></pre>
+<pre><span id="VALget_bool"><span class="keyword">val</span> get_bool</span> : <code class="type"><a href="PhTools.PhConfig.html#TYPEdico">dico</a> -> string -> bool</code></pre><div class="info ">
+Same as get_value, but return <code class="code">true</code> if the value is in the set  (the case isn't important), and <code class="code">false</code> else.<br>
+<b>Raises</b> <code>Config_item_not_found</code> if the key isn't in the dico.<br>
+</div>
+
+<pre><span id="VALprint_config"><span class="keyword">val</span> print_config</span> : <code class="type">string -> int -> unit</code></pre><div class="info ">
+<code class="code">print_config brick_name brick_verb</code> will print all elements in the brick_dico in a pretty way.<br>
+</div>
+<br>
+<h2 id="2_Advancedfunctions">Advanced functions</h2><br>
+
+<pre><span id="VALget_xml"><span class="keyword">val</span> get_xml</span> : <code class="type">unit -> Simplexmlparser.xml list</code></pre><div class="info ">
+Get the xml associated with the brick<br>
+</div>
+
+<pre><span id="VALdico_from_xml"><span class="keyword">val</span> dico_from_xml</span> : <code class="type">Simplexmlparser.xml list -> <a href="PhTools.PhConfig.html#TYPEdico">dico</a></code></pre></body></html>
