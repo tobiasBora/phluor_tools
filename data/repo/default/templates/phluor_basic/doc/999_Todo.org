@@ -1,6 +1,5 @@
 * TODO List
 ** Easy and fast
-- Automatise documentation generation from sources
 - Auto-generate config/<...>/modules.xml ==> Idea : generate it during the creation of the local config
 
 ** Easy and long
@@ -9,6 +8,3 @@
 ** May be hard/long to do
 - Create the database at startup
 - Deal with a local database
-
-** No sure it's possible to correct
-- Correctly deal with .mli when a .mli is removed (I don't want to do make clean each time I remove a .mli ==> It doesn't work only after a mv of the eliomi file that may keep the old timestamp ==> Nothing to do with the Makefile ?)
