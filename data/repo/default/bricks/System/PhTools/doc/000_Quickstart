@@ -1,1 +1,6 @@
-Put here your documentation ! 
+You have installed PhTools. PhTools is a brick which provide a set of usefull lib, like
+- CCOpt, a library written by compagnion_cube which provide a lot of functions to deal with options
+- PhConfig that allow you to get the configuration of the brick
+- PhDebug that is usefull to write on the output debug message (The user can define a default verbosity and a verbosity specific to each brick).
+
+To read the API you can open in your browser the documentation in src/System/PhTools/doc/api/{client;server}/index.html, or read the .mli files. You can also look into Test/Hello_conf_service to see how to deal with configuration files, and debug print ! Enjoy !
