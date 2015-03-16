@@ -51,6 +51,8 @@ let get_ocaml_dependencies brick_seq =
   |> S.map (fun s -> Str.split (Str.regexp "[,]") s
 			   |> S.of_list)
   |> S.concat
+  (*Avoid install of XXX.syntax...*)
+  |> S.map (fun s -> Str.split (Str.regexp "\\.") s |> List.hd)
   |> S.filter F.is_not_only_spaces
   |> S.sort_uniq
 
