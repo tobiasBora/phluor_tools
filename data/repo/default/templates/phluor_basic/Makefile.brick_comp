@@ -23,6 +23,9 @@ else
 M_CLIENT_PACKAGES:= $(CLIENT_PACKAGES:%=-package %)
 endif
 
+DOC_OPT_CLIENT ?= -client -html -d doc/api/client $(M_CLIENT_INCLUDE)
+DOC_OPT_SERVER ?= -server -html -d doc/api/server $(M_SERVER_INCLUDE)
+
 all: depends hello before_compilation server client _dep _dep_lib after_compilation
 
 hello:
@@ -162,6 +165,21 @@ before_compilation: _dep _dep_lib
 after_compilation: _dep _dep_lib
 	$(foreach brick, $(shell cat _dep), if [ -s "$(SRC)$(brick)/shared_makefiles/after_compilation.Makefile" ]; then echo "-- Running the after compilation Makefile of the brick $(brick) in $(shell pwd)."; make -f "$(SRC)$(brick)/shared_makefiles/after_compilation.Makefile"; fi && ) true
 
+##----------------------------------------------------------------------
+## Auto-generate documentation
+gen_doc:
+	rm -rf doc/api/client/
+	mkdir -p doc/api/client/
+	rm -rf doc/api/server/
+	mkdir -p doc/api/server/
+	$(ELIOMDOC) $(DOC_OPT_CLIENT) $(DOC_SOURCES)
+	$(ELIOMDOC) $(DOC_OPT_SERVER) $(DOC_SOURCES)
+
+
+
+##----------------------------------------------------------------------
+## Clean compilation
+
 clean: clean_compile clean_perso
 clean_compile:
 	rm -rf _client/ _server/ _deps/ _exec/ .depend
@@ -179,4 +197,4 @@ clean_all: clean
 	$(foreach dep, $(CLIENT_ONLY_DEPENDS), cd $(SRC) ; cd $(dep) ; make clean_all ; cd $(PWD) ;) exit 0
 
 
-PHONY: all hello depends server echo_server client echo_client clean clean_all before_compilation after_compilation
+PHONY: all hello depends server echo_server client echo_client gen_doc clean clean_all before_compilation after_compilation
