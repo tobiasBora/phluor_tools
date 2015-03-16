@@ -11,8 +11,6 @@ let (//) = Filename.concat
 
 let reg_services = Str.regexp "/services$"
 
-			      
-(* TODO : check ocaml dependencies *)
 let get_brick_dependencies brick_name0 =
   (* Remove /services in order to install the parent brick when
      the brick needs services. (E.g: Acme/Mybrick/services installs Acme/Mybrick *)
@@ -20,7 +18,7 @@ let get_brick_dependencies brick_name0 =
   (* Tries to find all dependencies of the brick *)
   let rec check_dep_aux max_level_rec curr_rec brick_name =
     if curr_rec > max_level_rec then failwith "Too many level of recursion."
-    else if Str.(string_match (regexp "^[\t ]+$") brick_name 0) then S.empty
+    else if not (F.is_not_only_spaces brick_name) then S.empty
     else
       let path =
 	try F.(get_path_obj `Brick brick_name)
@@ -35,6 +33,27 @@ let get_brick_dependencies brick_name0 =
 	|> S.sort_uniq
       else S.singleton brick_name
   in check_dep_aux 100 0 brick_name
+
+
+let get_ocaml_dependencies brick_seq =
+  let get_depends brick_name =
+    let path =
+      try F.(get_path_obj `Brick brick_name)
+      with Failure e -> Printf.(printf "Error : %s" e;
+				failwith (sprintf "The brick %s cannot be found in the path (ocaml dependencies)." brick_name)) in
+    path // "package" // "lib_depends.txt"
+    |> Easyfile.seq_of_file
+  in
+  brick_seq
+  |> S.filter F.is_not_only_spaces
+  |> S.map get_depends
+  |> S.concat
+  |> S.map (fun s -> Str.split (Str.regexp "[,]") s
+			   |> S.of_list)
+  |> S.concat
+  |> S.filter F.is_not_only_spaces
+  |> S.sort_uniq
+
 
 let update_local_brick_config dest dico is_model perso_folder registered_name =
   (* Generation of the folder config, from a new dico in model mode *)
@@ -90,7 +109,7 @@ let add_one_brick ?(register=`Ask) brick_name0 =
   (* Remove /services in order to install the parent brick when
      the brick needs services. (E.g: Acme/Mybrick/services installs Acme/Mybrick *)
   let brick_name = Str.global_replace reg_services "" brick_name0 in
-  if not (Str.string_match (Str.regexp "^[\t\n ]*$") brick_name 0) then
+  if F.is_not_only_spaces brick_name then
     begin
       Printf.printf "--- Installing %s\n" brick_name;
       let src_dir = F.(get_path_obj `Brick brick_name) in
@@ -184,7 +203,8 @@ let add_brick ?register brick_name =
       website before installing a package *)
   F.(go_root `Template);
   Printf.printf "--- Checking dependencies...\n";
-  get_brick_dependencies brick_name
+  let brick_depends = get_brick_dependencies brick_name |> S.persistent in
+  brick_depends
   |> S.iter (fun br ->
 	     if FileUtil.(test Exists
 			       ("src/" // br // "root_brick"))
@@ -195,12 +215,30 @@ let add_brick ?register brick_name =
 	     else add_one_brick br ~register:`No);
   
   (* Display a short text message *)
-  print_endline "-----------------------------";
-  try
+  Printf.printf "-----------------------------\n";
+  Printf.printf "---------  MESSAGE  ---------\n";
+  Printf.printf "-----------------------------\n";
+  (try
     F.get_message_file `Brick brick_name
     |> Easyfile.seq_of_file
     |> S.iter print_endline
-  with Sys_error _ -> ()
+  with Sys_error _ -> ());
+  Printf.printf "\n";
+  (* Display the command to install all ocaml depends *)
+  get_ocaml_dependencies brick_depends
+  |> S.fold (fun a b -> a ^ " " ^ b) ""
+  |> (fun s ->
+      if F.is_not_only_spaces s then
+	begin
+	  Printf.printf "---/ \\-------------------------\n";
+	  Printf.printf "--/ | \\-----  WARNING  --------\n";
+	  Printf.printf "-/__o__\\-----------------------\n";
+	  Printf.printf "To conclude the installation, make sure \
+			 the following libraries\n are installed, \
+			 for example with :\n$ opam install %s\n"
+			(F.remove_trailing_spaces s)
+	end)
+
 	      
 let remove_brick ?(remove_config=true) brick_name =
   Printf.printf "--- Searching root of project...\n";

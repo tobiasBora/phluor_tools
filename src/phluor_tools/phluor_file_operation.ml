@@ -10,7 +10,9 @@ let remove_spaces str = Str.global_replace (Str.regexp "[ \t]+") "" str
 let remove_trailing_spaces str =
   Str.global_replace (Str.regexp "^[ \t]*") "" str
   |> Str.global_replace (Str.regexp "[ \t]*$") "" 
-
+let is_not_only_spaces str =
+  not (Str.string_match (Str.regexp "^[ \t\n]*$") str 0)
+		   
 (* =================================== *)
 (* ===== File content operations ===== *)
 (* =================================== *)
