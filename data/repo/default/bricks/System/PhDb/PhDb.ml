@@ -233,7 +233,7 @@ let _ =
   printf 3 "PORT :> %s" (map string_of_int port |> get "None");
   printf 3 "USER :> %s" (user |> get "None");
   printf 3 "PASSWORD :> %s"
-	 (if is_none password then "None"
+	 (if not (is_some password) then "None"
 	  else "Not displayed for security reasons");
   printf 3 "DATABASE :> %s" (database |> get "None");
   printf 3 ""
