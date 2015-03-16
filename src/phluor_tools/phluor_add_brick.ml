@@ -229,6 +229,7 @@ let add_brick ?register brick_name =
   (* Display the command to install all ocaml depends *)
   get_ocaml_dependencies brick_depends
   |> S.fold (fun a b -> a ^ " " ^ b) ""
+  |> Str.global_replace (Str.regexp "[ \t]+") " "
   |> (fun s ->
       if F.is_not_only_spaces s then
 	begin
