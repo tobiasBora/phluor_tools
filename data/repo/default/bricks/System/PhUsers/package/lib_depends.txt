@@ -1,8 +1,6 @@
 safepass
 pgocaml
 macaque
-pgocaml.syntax
 macaque.syntax
-lwt
-lwt.syntax
+
  
