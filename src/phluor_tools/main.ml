@@ -61,25 +61,11 @@ let copy copts src_file dst_file dico_filename dico_content prefix keep_dic inc 
       src_file
       dst_file
 
-(* The brick_name is facultatif *)
-let add_brick copts brick_name =
-  (* Get the brick name *)
-  let brick =
-    let open Phluor_file_operation in
-    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
-    let l = get_list_obj `Brick in
-    l
-    |> List.filter (fun (br,_) ->
-		    try let _ = Str.search_forward reg br 0 in true
-		    with Not_found -> false)
-    |> choose_in_list
-  in
-  Phluor_add_brick.add_brick brick
-
-let get_brick brick_name =
+(* Let the user choose a brick *)
+let get_brick ?(allow_local=false) brick_name =
   (* Deal with bricks that have been installed manually
       (not in the repository) *)
-  if brick_name <> ""
+  if allow_local && brick_name <> ""
      && FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
   then
     brick_name
@@ -92,6 +78,11 @@ let get_brick brick_name =
 		    try let _ = Str.search_forward reg br 0 in true
 		    with Not_found -> false)
     |> choose_in_list
+
+(* The brick_name is facultatif *)
+let add_brick copts brick_name =
+  get_brick brick_name
+  |> Phluor_add_brick.add_brick 
      
 (* The brick_name is facultatif *)
 let remove_brick copts brick_name =
@@ -101,7 +92,7 @@ let remove_brick copts brick_name =
       website before installing a package *)
   Phluor_file_operation.(go_root `Template);
   (* Get the brick name *)
-  let brick = get_brick brick_name in
+  let brick = get_brick ~allow_local:true brick_name in
   if
     Phluor_file_operation.ask_yes_no
       ~default:"n"
@@ -112,18 +103,8 @@ let remove_brick copts brick_name =
 
 (* The brick_name is facultatif *)
 let reinstall_brick copts brick_name =
-  (* Get the brick name *)
-  let brick =
-    let open Phluor_file_operation in
-    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
-    let l = get_list_obj `Brick in
-    l
-    |> List.filter (fun (br,_) ->
-		    try let _ = Str.search_forward reg br 0 in true
-		    with Not_found -> false)
-    |> choose_in_list
-  in
-  Phluor_add_brick.reinstall_brick brick
+  get_brick brick_name
+  |> Phluor_add_brick.reinstall_brick
   
 let update_config_brick copts brick_name =
   Printf.printf "--- Searching root of project...\n";
@@ -132,7 +113,7 @@ let update_config_brick copts brick_name =
       website before installing a package *)
   Phluor_file_operation.(go_root `Template);
   (* Get the brick name *)
-  let brick = get_brick brick_name in
+  let brick = get_brick ~allow_local:true brick_name in
   Phluor_add_brick.update_local_config brick
   
 		
