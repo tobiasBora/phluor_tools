@@ -41,8 +41,11 @@ let get_ocaml_dependencies brick_seq =
       try F.(get_path_obj `Brick brick_name)
       with Failure e -> Printf.(printf "Error : %s" e;
 				failwith (sprintf "The brick %s cannot be found in the path (ocaml dependencies)." brick_name)) in
-    path // "package" // "lib_depends.txt"
-    |> Easyfile.seq_of_file
+    S.append
+      (path // "package" // "lib_depends_server.txt"
+       |> Easyfile.seq_of_file)
+      (path // "package" // "lib_depends_client.txt"
+       |> Easyfile.seq_of_file)
   in
   brick_seq
   |> S.filter F.is_not_only_spaces

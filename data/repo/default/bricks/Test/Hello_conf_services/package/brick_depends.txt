@@ -1,2 +1,4 @@
+Test/Hello_conf_services/services
 System/Kernel
 System/PhTools
+

@@ -1,3 +1,5 @@
+TODO : this documentation must be updated because it's not usefull to know every single file to create a brick, there is a way to autogenerate them.
+
 * How to create it's own brick
 Every template must have the following structure (Some file are missing in this doc):
 
@@ -9,7 +11,8 @@ Every template must have the following structure (Some file are missing in this 
     │   ├── name.dico (Text loaded by the Makefile to register the brick.)
     │   ├── replacement.qdico (facultatif, question dico file)
     │   ├── brick_depends.txt (facultatif)
-    │   ├── lib_depends.txt (facultatif [NEED TO BE INPLEMENTED])
+    │   ├── lib_depends_client.txt
+    │   ├── lib_depends_server.txt
     │   ├── message.txt (facultatif, display message after install)
     ├── doc/ (The documentation folder)
     ├── src/ (All sources of the brick are in this folder)
