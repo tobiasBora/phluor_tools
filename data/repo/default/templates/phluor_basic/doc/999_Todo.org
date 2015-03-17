@@ -1,7 +1,7 @@
 * TODO List
 ** Easy and fast
 - Auto-generate config/<...>/modules.xml ==> Idea : generate it during the creation of the local config
-- Create a lib_depends_client.txt file that is for client only.
+- Create a lib_depends_link_js.txt file that is for client only.
 
 ** Easy and long
 - Document everything

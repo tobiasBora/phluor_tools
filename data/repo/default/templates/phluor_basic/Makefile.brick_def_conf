@@ -21,8 +21,8 @@ CLIENT_ONLY_DEPENDS ?=
 
 # Ocaml packages : separate it with a comma
 # If client packages are different from server packages, save as above
-SERVER_PACKAGES ?= $(shell cat package/lib_depends_server.txt)
-CLIENT_PACKAGES ?= $(shell cat package/lib_depends_client.txt)
+SERVER_PACKAGES ?= $(shell cat package/lib_depends.txt)
+CLIENT_PACKAGES ?= $(shell cat package/lib_depends.txt)
 
 SERVER_INCLUDE_DIRS ?=
 CLIENT_INCLUDE_DIRS ?=

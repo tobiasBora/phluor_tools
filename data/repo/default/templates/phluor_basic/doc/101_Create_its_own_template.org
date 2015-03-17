@@ -6,8 +6,8 @@ Every template must have the following structure:
     ├── package
     │   ├── brick_depends.txt
     │   ├── info.dico
-    │   ├── lib_depends_client.txt
-    │   ├── lib_depends_server.txt
+    │   ├── lib_depends_link_js.txt
+    │   ├── lib_depends.txt
     │   └── replacement.qdico
     ├── src
     ├── static
@@ -27,7 +27,7 @@ A dico file, containing some usefull informations such as
 - TEMPLATE : The name of the template
 - VERSION : The version of the template
 And you can add some others usefull informations related to the whole project structure.
-**** package/lib_depends_server.txt and package/lib_depends_client.txt
+**** package/lib_depends.txt and package/lib_depends_link_js.txt
 A list (one per line) of all ocaml libraries that need to be installed after the installation of the template. (the libs in "..._server" are the ones used in the server code, and "..._client" in the client code.
 **** package/replacement.qdico
 A question dico file which is used to configure the copy of the template. Each file will be copied in the project after replacing all occurences of the words present in the .qdico file. 
