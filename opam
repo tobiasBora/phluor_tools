@@ -1,5 +1,11 @@
 opam-version: "1"
-maintainer: "leo.colisson -@- gmail [.] com"
+name: "phluor_tools"
+version: "0.1"
+maintainer: "Léo Colisson (Aka TobiasBora) <leo.colisson -@- gmail [.] com>"
+authors: "Léo Colisson (Aka TobiasBora) <leo.colisson -@- gmail [.] com>"
+homepage: ""
+bug-reports: ""
+license: "GPLv3"
 build: [
   ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
   ["ocaml" "setup.ml" "-build"]
