@@ -15,7 +15,8 @@ remove: [
   ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
   ["ocaml" "setup.ml" "-uninstall"]
   ["ocamlfind" "remove" "phluor_tools"]
+  ["ocamlfind" "remove" "phluor_tools_lib"]
 ]
 depends: [
-  "ocamlfind"
+  "ocamlfind" "sqlite3" 
 ]

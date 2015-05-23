@@ -8,6 +8,13 @@ License:     MIT
 Plugins:     META (0.4), StdFiles (0.4), DevFiles (0.4)
 FilesAB:     src/phluor_tools/phluor_default.ml.ab
 
+Library phluor_tools_lib
+  Path:       src/phluor_tools_lib
+  BuildTools: ocamlbuild
+  Pack:       true
+  Modules:    Bdd_check
+  BuildDepends: containers
+  
 Executable "phluor_tools"
   Path:       src/phluor_tools/
   BuildTools: ocamlbuild
