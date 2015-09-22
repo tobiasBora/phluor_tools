@@ -205,6 +205,15 @@ let cd_cmd =
   Term.(pure Manage_bricks.cd $ copts_t $ brick_name),
   Term.info "cd" ~sdocs:copts_sect ~doc ~man
 
+let get_loaded_bricks_cmd =
+  let doc = "It gives a list of all bricks that are going to be loaded." in
+  let man = [
+    `S "DESCRIPTION";
+    `P doc ] @ help_secs
+  in
+  Term.(pure Website_info.get_loaded_bricks_cmdl $ copts_t),
+  Term.info "get_loaded_bricks" ~sdocs:copts_sect ~doc ~man
+
 let compile_cmd = 
   let doc = "It compiles the whole current project. You can specify a brick name if you want to compile only one brick and its dependances." in
   let man = [
@@ -230,15 +239,6 @@ let clean_cmd =
   in
   Term.(pure Website_info.clean_cmdl $ copts_t $ brick_name),
   Term.info "clean" ~sdocs:copts_sect ~doc ~man
-
-let get_loaded_bricks_cmd =
-  let doc = "It gives a list of all bricks that are going to be loaded." in
-  let man = [
-    `S "DESCRIPTION";
-    `P doc ] @ help_secs
-  in
-  Term.(pure Website_info.get_loaded_bricks_cmdl $ copts_t),
-  Term.info "get_loaded_bricks" ~sdocs:copts_sect ~doc ~man
 
 let generate_www_cmd =
   let doc = "Generate the folder www/ with all the configuration of the files. Usually run it after 'compile' and becore 'run' (or use 'all' to do everything in one command)" in
@@ -287,7 +287,26 @@ let default_cmd =
   Term.(ret (pure (fun _ -> `Help (`Pager, None)) $ copts_t)),
   Term.info "phluor_tools" ~version:"1.1.0" ~sdocs:copts_sect ~doc ~man
        
-let cmds = [create_website_cmd; dir_cmd; copy_cmd; add_brick_cmd; remove_brick_cmd; reinstall_brick_cmd; update_config_brick_cmd; help_cmd]
+(* Easy way to get this list :
+   cat main.ml | grep -e "^let .*cmd =" | sed 's/^let //g' | sed 's/ =.*$/;/g' *)
+let cmds = [
+  create_website_cmd;
+  dir_cmd;
+  copy_cmd;
+  add_brick_cmd;
+  remove_brick_cmd;
+  reinstall_brick_cmd;
+  update_config_brick_cmd;
+  cd_cmd;
+  get_loaded_bricks_cmd;
+  compile_cmd;
+  clean_cmd;
+  generate_www_cmd;
+  run_cmd;
+  all_cmd;
+  help_cmd;
+  default_cmd
+]
 
 let () = match Term.eval_choice default_cmd cmds with 
 | `Error _ -> exit 1 | _ -> exit 0

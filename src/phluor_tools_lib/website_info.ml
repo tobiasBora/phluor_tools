@@ -231,10 +231,10 @@ let _save_old () =
   let open FileUtil in
   (* Save the old website *)
   if test Exists "www" then begin
-    pr "I'm saving the current www/ folder";
+    pr "I'm saving the current www/ folder\n";
     rm ~recurse:true [".www_bak"];
     Sys.rename "www" ".www_bak";
-    pr "The old configuration has been saved in the folder .www_bak/"
+    pr "The old configuration has been saved in the folder .www_bak/\n"
   end
 
 let _create_folders () =
@@ -258,7 +258,7 @@ let _copy_static_bricks ?brick_list () =
   let tree_bricks_dict = get_tree_bricks ?brick_list () in
   SDict.iter
     (fun brick data ->
-       pr "copying static %s..." brick;
+       pr "copying static %s...\n" brick;
        FileUtil.mkdir ~parent:true (sp "www/static/bricks/%s" brick);
        F.copy_and_replace_inside
          []
@@ -280,7 +280,7 @@ let _copy_bricks_server_part () =
   get_loaded_bricks ()
   |> List.iter (fun brick_name ->
       let open FileUtil in
-      pr "Copying %s..." brick_name;
+      pr "Copying %s...\n" brick_name;
       mkdir ~parent:true (sp "www/modules/%s" brick_name);
       cp ~recurse:true
         (ls (sp "bricks_src/%s/_exec/" brick_name))
@@ -289,7 +289,7 @@ let _copy_bricks_server_part () =
 let _update_config () =
   let open FileUtil in
   F.go_root `Template;
-  pr "--- Server configuration ---";
+  pr "--- Server configuration ---\n";
   (* Copy the server config... *)
   let file_conf = "www/run_server.xml" in
   cp ["run_server.xml"] file_conf;
@@ -314,7 +314,7 @@ let _update_config () =
         if content = [] || List.hd content <> "" then List.hd content
         else brick_name
       in
-      pr "-- Loading the configuration of %s with the file from %s"
+      pr "-- Loading the configuration of %s with the file from %s\n"
         brick_name brick_config;
       (* The priority for config dico is :
          - Include files of config/<brick>
@@ -359,14 +359,14 @@ let create_and_save_website_archi () =
 
 let run () =
   F.go_root `Template;
-  pr "#################################";
-  pr "########## Running... ##########";
-  pr "#################################";
+  pr "#################################\n";
+  pr "########## Running... ##########\n";
+  pr "#################################\n%!";
   (* Get port *)
   let dico = F.list_of_file "link_server_conf.txt"
              |> List.filter
                (fun s -> not Str.(string_match (regexp "^#") s 0))
-             |> List.hd
+             |> (fun s -> try List.hd with _ -> failwith "Cannot find any link_server_conf.txt that contains the name of a default .dico file.")
              |> F.dico_of_file in
   let port =
     try F.dico_get_from_key dico "PORT"
@@ -374,8 +374,8 @@ let run () =
   let error_message =
     try F.dico_get_from_key dico "ERROR_MESSAGE"
     with Not_found -> "" in
-  pr "The website is available in port %s (for example http://localhost:%s/ )" port port;
-  pr "---------------------------------";
+  pr "The website is available in port %s (for example http://localhost:%s/ )\n" port port;
+  pr "---------------------------------\n";
   (* # sudo chmod 500 /etc/authbind/byport/80 *)
   (* # sudo chown leo /etc/authbind/byport/80 *)
   (* # cd www/; su --preserve-environment -c "ocsigenserver -c run_server.xml -v" *)
@@ -397,9 +397,9 @@ let run () =
 
 let compile_cmdl copts brick_name =
   F.go_root `Template;
-  pr "#################################";
-  pr "########## BUILDING... ##########";
-  pr "#################################";
+  pr "#################################\n";
+  pr "########## BUILDING... ##########\n";
+  pr "#################################\n";
   (match brick_name with
      "" ->
      (* Compile everything *)
@@ -423,7 +423,7 @@ let get_loaded_bricks_cmdl copts =
   F.go_root `Template;
   verbose := false;
   get_loaded_bricks ()
-  |> List.iter (Printf.printf "%s ");
+  |> List.iter (Printf.printf "%s\n");
   Printf.printf "\n"
 
 let generate_www_cmdl copts =
