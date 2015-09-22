@@ -9,114 +9,24 @@
 
 - copy
 
+- compile
 
+- clean
+
+- list_bricks
+
+- list_loaded_bricks
+   
  *)
 
 let (//) = Filename.concat
+open Cmdliner
+open Phluor_tools_lib
+open Phluor_tools_lib.Settings
+module F = File_operation
 
-(* Common options *)
-type copts = {debug:bool; verbose:int}
+(* Help sections common to all commands *)
 
-let create_website copts =
-  Phluor_create_website.interactive ()
-
-let dir copts =
-  (try
-      match Settings.user_data_dir ("phluor_tools") with
-	Some path -> Printf.printf "Local: %s\n" path
-      | None -> raise Not_found
-    with _ -> Printf.printf "Local: no folder found"
-  );
-  Printf.printf "System: %s\n" Phluor_default.data_folder
-
-let copy copts src_file dst_file dico_filename dico_content prefix keep_dic inc keep_inc rem_only copy_inside avoid_error =
-  let f_copy =
-    if copy_inside then Phluor_file_operation.copy_and_replace_inside
-    else Phluor_file_operation.copy_and_replace
-  in
-  if rem_only then f_copy [] [] ~rem_inc_only:true src_file dst_file
-  else
-    let dico_filename_final =
-      if dico_filename = "" then []
-      else Phluor_file_operation.dico_of_file ~avoid_error dico_filename
-    in
-    let dico_content_final =
-      if dico_content = "" then []
-      else Phluor_file_operation.dico_of_file ~avoid_error dico_content
-    in
-    if copts.debug then
-      (
-	Printf.printf "There are %d elements in the dico.\n"
-		      (List.length dico_content_final);
-	List.iter (fun (a,b) -> Printf.printf "(%s,%s)\n" a b)
-		dico_content_final);
-    f_copy
-      dico_filename_final
-      dico_content_final
-      ~prefix
-      ~keep_dic
-      ~inc
-      ~keep_inc
-      ~avoid_error
-      src_file
-      dst_file
-
-(* Let the user choose a brick *)
-let get_brick ?(allow_local=false) brick_name =
-  (* Deal with bricks that have been installed manually
-      (not in the repository) *)
-  if allow_local && brick_name <> ""
-     && FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
-  then
-    brick_name
-  else
-    let open Phluor_file_operation in
-    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
-    let l = get_list_obj `Brick in
-    l
-    |> List.filter (fun (br,_) ->
-		    try let _ = Str.search_forward reg br 0 in true
-		    with Not_found -> false)
-    |> choose_in_list
-
-(* The brick_name is facultatif *)
-let add_brick copts brick_name =
-  get_brick brick_name
-  |> Phluor_add_brick.add_brick 
-     
-(* The brick_name is facultatif *)
-let remove_brick copts brick_name =
-  Printf.printf "--- Searching root of project...\n";
-  (* The main project must contain a root file in it's root.
-     This file is useless to go to the root of the main
-      website before installing a package *)
-  Phluor_file_operation.(go_root `Template);
-  (* Get the brick name *)
-  let brick = get_brick ~allow_local:true brick_name in
-  if
-    Phluor_file_operation.ask_yes_no
-      ~default:"n"
-      (Printf.sprintf "Are you sure you wan't to remove %s ? (y/n)" brick)
-  then
-    Phluor_add_brick.remove_brick brick
-  else ()
-
-(* The brick_name is facultatif *)
-let reinstall_brick copts brick_name =
-  get_brick brick_name
-  |> Phluor_add_brick.reinstall_brick
-  
-let update_config_brick copts brick_name =
-  Printf.printf "--- Searching root of project...\n";
-  (* The main project must contain a root file in it's root.
-     This file is useless to go to the root of the main
-      website before installing a package *)
-  Phluor_file_operation.(go_root `Template);
-  (* Get the brick name *)
-  let brick = get_brick ~allow_local:true brick_name in
-  Phluor_add_brick.update_local_config brick
-  
-		
 let help copts man_format cmds topic = match topic with
 | None -> `Help (`Pager, None) (* help about the program. *)
 | Some topic -> 
@@ -129,10 +39,6 @@ let help copts man_format cmds topic = match topic with
     | `Ok t -> 
         let page = (topic, 7, "", "", ""), [`S topic; `P "Say something";] in
         `Ok (Cmdliner.Manpage.print man_format Format.std_formatter page)
-
-open Cmdliner
-
-(* Help sections common to all commands *)
 
 let copts_sect = "COMMON OPTIONS"
 let help_secs = [ 
@@ -166,7 +72,7 @@ let create_website_cmd =
     `S "DESCRIPTION";
     `P "This interactive command must be used to create a new website. It will copy in a new folder a website template, and configure it."] @ help_secs
   in
-  Term.(pure create_website $ copts_t),
+  Term.(pure (fun copts -> Create_website.create_website ()) $ copts_t),
   Term.info "create_website" ~sdocs:copts_sect ~doc ~man
 
 let dir_cmd = 
@@ -175,7 +81,7 @@ let dir_cmd =
     `S "DESCRIPTION";
     `P "Gives the configuration folders. You can find in it all repos, the bricks and website templates..."] @ help_secs
   in
-  Term.(pure dir $ copts_t),
+  Term.(pure Settings.dir $ copts_t),
   Term.info "dir" ~sdocs:copts_sect ~doc ~man
 
 let copy_cmd = 
@@ -230,7 +136,7 @@ let copy_cmd =
     `S "DESCRIPTION";
     `P "Copy files and folders by using includes and dicos. Each line in dico file must have this structure : \"WORD | REPLACEMENT\", and every occurence of %%WORD%% will be replaced by REPLACEMENT. You can use include too in your files like this : %%INC(<your file>)%%."] @ help_secs
   in
-  Term.(pure copy $ copts_t $ src_file $ dst_file $ dico_filename $ dico_content $ prefix $ keep_dic $ inc $ keep_inc $ rem_only $ copy_inside $ avoid_error),
+  Term.(pure F.copy $ copts_t $ src_file $ dst_file $ dico_filename $ dico_content $ prefix $ keep_dic $ inc $ keep_inc $ rem_only $ copy_inside $ avoid_error),
   Term.info "copy" ~sdocs:copts_sect ~doc ~man
 
 	    
@@ -244,7 +150,7 @@ let add_brick_cmd =
     let doc = "Name of the brick (facultatif)." in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure add_brick $ copts_t $ brick_name),
+  Term.(pure Manage_bricks.add_brick_cmdl $ copts_t $ brick_name),
   Term.info "add_brick" ~sdocs:copts_sect ~doc ~man
 
 let remove_brick_cmd = 
@@ -257,7 +163,7 @@ let remove_brick_cmd =
     let doc = "Name of the brick (facultatif)." in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure remove_brick $ copts_t $ brick_name),
+  Term.(pure Manage_bricks.remove_brick_cmdl $ copts_t $ brick_name),
   Term.info "remove_brick" ~sdocs:copts_sect ~doc ~man
 
 let reinstall_brick_cmd = 
@@ -270,7 +176,7 @@ let reinstall_brick_cmd =
     let doc = "Name of the brick (facultatif)." in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure reinstall_brick $ copts_t $ brick_name),
+  Term.(pure Manage_bricks.reinstall_brick_cmdl $ copts_t $ brick_name),
   Term.info "reinstall_brick" ~sdocs:copts_sect ~doc ~man
 
 let update_config_brick_cmd = 
@@ -283,10 +189,85 @@ let update_config_brick_cmd =
     let doc = "Name of the brick (facultatif)." in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure update_config_brick $ copts_t $ brick_name),
+  Term.(pure Manage_bricks.update_config_brick_cmdl $ copts_t $ brick_name),
   Term.info "update_config_brick" ~sdocs:copts_sect ~doc ~man
 
-	    
+let cd_cmd = 
+  let doc = "With a dot (.) in parameters it goes in the root of the project. Else, you can choose a brick to go in." in
+  let man = [
+    `S "DESCRIPTION";
+    `P "With a dot in parameters it goes in the root of the project. Else, you can choose a brick to go in."] @ help_secs
+  in
+  let brick_name = 
+    let doc = "Name of the brick (facultatif, '.' to go in the project root)." in
+    Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
+  in
+  Term.(pure Manage_bricks.cd $ copts_t $ brick_name),
+  Term.info "cd" ~sdocs:copts_sect ~doc ~man
+
+let compile_cmd = 
+  let doc = "It compiles the whole current project. You can specify a brick name if you want to compile only one brick and its dependances." in
+  let man = [
+    `S "DESCRIPTION";
+    `P "It compiles the whole current project."] @ help_secs
+  in
+  let brick_name = 
+    let doc = "Name of the brick (if not given compile everything)" in
+    Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
+  in
+  Term.(pure Website_info.compile_cmdl $ copts_t $ brick_name),
+  Term.info "compile" ~sdocs:copts_sect ~doc ~man
+
+let clean_cmd = 
+  let doc = "It clean the whole current project. You can specify a brick name if you want to clean only one brick and its dependances." in
+  let man = [
+    `S "DESCRIPTION";
+    `P "It clean the whole current project. You can specify a brick name if you want to clean only one brick and its dependances."] @ help_secs
+  in
+  let brick_name = 
+    let doc = "Name of the brick (if not given clean everything)" in
+    Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
+  in
+  Term.(pure Website_info.clean_cmdl $ copts_t $ brick_name),
+  Term.info "clean" ~sdocs:copts_sect ~doc ~man
+
+let get_loaded_bricks_cmd =
+  let doc = "It gives a list of all bricks that are going to be loaded." in
+  let man = [
+    `S "DESCRIPTION";
+    `P doc ] @ help_secs
+  in
+  Term.(pure Website_info.get_loaded_bricks_cmdl $ copts_t),
+  Term.info "get_loaded_bricks" ~sdocs:copts_sect ~doc ~man
+
+let generate_www_cmd =
+  let doc = "Generate the folder www/ with all the configuration of the files. Usually run it after 'compile' and becore 'run' (or use 'all' to do everything in one command)" in
+  let man = [
+    `S "DESCRIPTION";
+    `P doc ] @ help_secs
+  in
+  Term.(pure Website_info.generate_www_cmdl $ copts_t),
+  Term.info "generate_www" ~sdocs:copts_sect ~doc ~man
+
+let run_cmd =
+  let doc = "Run the website (use it after 'compile' and 'generate_www', or use 'all' to do everything in one command)." in
+  let man = [
+    `S "DESCRIPTION";
+    `P doc ] @ help_secs
+  in
+  Term.(pure Website_info.run_cmdl $ copts_t),
+  Term.info "run" ~sdocs:copts_sect ~doc ~man
+
+let all_cmd =
+  let doc = "Compile, generate the www folder and run the website." in
+  let man = [
+    `S "DESCRIPTION";
+    `P doc ] @ help_secs
+  in
+  Term.(pure Website_info.all_cmdl $ copts_t),
+  Term.info "all" ~sdocs:copts_sect ~doc ~man
+
+
 let help_cmd = 
   let topic = 
     let doc = "The topic to get help on. `topics' lists the topics." in 

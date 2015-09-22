@@ -5,11 +5,14 @@ with files better than BatEnum (the BatEnum library don't close the
 file if the Enum stops during enumeration) *)
 
 
-module F = Phluor_file_operation
+module F = File_operation
 module S = Sequence
 let (//) = Filename.concat
 
 let reg_services = Str.regexp "/services$"
+
+let is_brick_installed brick_name =
+  FileUtil.(test Exists ("src/" // brick_name // "root_brick"))
 
 let get_brick_dependencies brick_name0 =
   (* Remove /services in order to install the parent brick when
@@ -21,12 +24,12 @@ let get_brick_dependencies brick_name0 =
     else if not (F.is_not_only_spaces brick_name) then S.empty
     else
       let path =
-	try F.(get_path_obj `Brick brick_name)
+	try F.(get_path_obj_repo `Brick brick_name)
 	with Failure e -> Printf.(printf "Error : %s" e;
 			   failwith (sprintf "The brick %s cannot be found in the path." brick_name)) in
       let file = path // "package" // "brick_depends.txt" in
       if FileUtil.(test Exists file) then
-	Easyfile.seq_of_file file
+	F.seq_of_file file
 	|> S.map (check_dep_aux max_level_rec (curr_rec + 1))
 	|> S.concat
 	|> S.cons brick_name
@@ -38,14 +41,14 @@ let get_brick_dependencies brick_name0 =
 let get_ocaml_dependencies brick_seq =
   let get_depends brick_name =
     let path =
-      try F.(get_path_obj `Brick brick_name)
+      try F.(get_path_obj_repo `Brick brick_name)
       with Failure e -> Printf.(printf "Error : %s" e;
 				failwith (sprintf "The brick %s cannot be found in the path (ocaml dependencies)." brick_name)) in
     S.append
       (path // "package" // "lib_depends.txt"
-       |> Easyfile.seq_of_file)
+       |> F.seq_of_file)
       (path // "package" // "lib_depends_link_js.txt"
-       |> Easyfile.seq_of_file)
+       |> F.seq_of_file)
   in
   brick_seq
   |> S.filter F.is_not_only_spaces
@@ -120,7 +123,7 @@ let add_one_brick ?(register=`Ask) brick_name =
       if F.is_not_only_spaces brick_name then
 	begin
 	  Printf.printf "--- Installing %s\n" brick_name;
-	  let src_dir = F.(get_path_obj `Brick brick_name) in
+	  let src_dir = F.(get_path_obj_repo `Brick brick_name) in
 	  let dico_conf =
 	    try
 	      F.(dico_of_file (src_dir // "package" // "info.dico"))
@@ -148,7 +151,7 @@ putting in name.dico an entry REGISTERED_NAME.
      after because it's content shouldn't be replaced.
 	   *)
 	  let avoid_filenames = (Str.regexp "^config_model$") ::
-				  (Easyfile.seq_of_file_no_err (src_dir // "package" // "avoid_in_copy.txt")
+				  (F.seq_of_file ~avoid_error:true (src_dir // "package" // "avoid_in_copy.txt")
 				   |> S.map (fun s -> "^" ^ (src_dir // s) ^ "$") (* Be sure the regexp match the beginning*)
 				   |> S.map (fun s -> Str.regexp s)
 				   |> S.to_list)
@@ -187,10 +190,10 @@ putting in name.dico an entry REGISTERED_NAME.
 				 "\nWould you like to register the brick in bricks_included.txt\nto be load it in the website ? (y/n)"
 	      then
 		begin
-		  if not (Easyfile.seq_of_file "bricks_included.txt"
+		  if not (F.seq_of_file "bricks_included.txt"
 			  |> S.mem brick_name) then
 		    begin
-		      Easyfile.write_in_file ~mode:[Open_append]
+		      F.write_in_file ~mode:[Open_append]
 					     "bricks_included.txt"
 					     (S.singleton registered_name);
 		      Printf.printf "The brick %s has been added in bricks_included.txt\n" brick_name
@@ -214,9 +217,7 @@ let add_brick ?register brick_name =
   let brick_depends = get_brick_dependencies brick_name |> S.persistent in
   brick_depends
   |> S.iter (fun br ->
-	     if FileUtil.(test Exists
-			       ("src/" // br // "root_brick"))
-	     then
+	     if is_brick_installed br then
 	       Printf.printf "Bricks %s already installed.\n" br
 	     else if br = brick_name then
 	       add_one_brick br ?register
@@ -228,7 +229,7 @@ let add_brick ?register brick_name =
   Printf.printf "-----------------------------\n";
   (try
     F.get_message_file `Brick brick_name
-    |> Easyfile.seq_of_file
+    |> F.seq_of_file
     |> S.iter print_endline
   with Sys_error _ -> ());
   Printf.printf "\n";
@@ -255,8 +256,7 @@ let remove_brick ?(remove_config=true) brick_name =
      This file is useless to go to the root of the main
       website before installing a package *)
   F.(go_root `Template);
-  if not FileUtil.(test Exists
-		    ("src/" // brick_name // "root_brick"))
+  if not (is_brick_installed brick_name)
   then
     Printf.printf "Bricks %s not installed.\n" brick_name
   else
@@ -290,3 +290,77 @@ let update_local_config brick_name =
       brick_name
   else
     Printf.printf "The brick %s doesn't exist." brick_name
+
+(** Let the user choose a brick, except if interactiv is [false] *)
+let get_brick ?(local=false) ?(interactiv=true) brick_name =
+  let (is_installed, available_bricks) =
+    if local then
+      (is_brick_installed brick_name,
+       Website_info.get_installed_bricks ())
+    else
+      (false,
+       F.get_list_obj_repo `Brick)
+  in
+  if brick_name <> "" && is_installed then
+    brick_name
+  else
+    let open F in
+    let reg = Str.regexp (Printf.sprintf ".*%s.*" brick_name) in
+    let l = available_bricks
+            |> List.filter (fun br ->
+		try let _ = Str.search_forward reg br 0 in true
+                with Not_found -> false)
+            |> List.map (fun s -> (s,s))
+    in
+    if List.length l = 0 then
+      raise (F.Empty_list "[Get brick] No element corresponds\
+                           to the description")
+    else if not interactiv then fst (List.hd l)
+    else choose_in_list l
+
+
+(* ================================ *)
+(* =====  Cmdliner functions  ===== *)
+(* ================================ *)
+
+(* The brick_name is facultatif *)
+let add_brick_cmdl copts brick_name =
+  get_brick brick_name
+  |> add_brick 
+     
+(* The brick_name is facultatif *)
+let remove_brick_cmdl copts brick_name =
+  Printf.printf "--- Searching root of project...\n";
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  F.(go_root `Template);
+  (* Get the brick name *)
+  let brick = get_brick ~local:true brick_name in
+  if
+    F.ask_yes_no
+      ~default:"n"
+      (Printf.sprintf "Are you sure you wan't to remove %s ? (y/n)" brick)
+  then
+    remove_brick brick
+  else ()
+
+(* The brick_name is facultatif *)
+let reinstall_brick_cmdl copts brick_name =
+  get_brick brick_name
+  |> reinstall_brick
+  
+let update_config_brick_cmdl copts brick_name =
+  Printf.printf "--- Searching root of project...\n";
+  (* The main project must contain a root file in it's root.
+     This file is useless to go to the root of the main
+      website before installing a package *)
+  F.(go_root `Template);
+  (* Get the brick name *)
+  let brick = get_brick ~local:true brick_name in
+  update_local_config brick
+  
+let cd copts_t brick_name = match brick_name with
+    "." -> F.go_root `Template
+  | _ -> get_brick ~local:true brick_name
+         |> fun s -> F.go_root ~obj_name:s `Brick

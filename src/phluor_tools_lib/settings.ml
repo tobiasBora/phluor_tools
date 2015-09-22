@@ -1,4 +1,7 @@
 let (//) = Filename.concat
+let name = "phluor_tools"
+let data_folder = "/usr/local/share/phluor_tools/"
+
 
 let user_data_dir prog_name = match Sys.os_type with
     "Unix" | "Cygwin" ->
@@ -30,3 +33,18 @@ let user_config_dir prog_name = match Sys.os_type with
      end
   | _ -> None
 
+(* ================================ *)
+(* =====  Cmdliner functions  ===== *)
+(* ================================ *)
+
+(* Common options for command line *)
+type copts = {debug:bool; verbose:int}
+
+let dir copts =
+  (try
+      match user_data_dir ("phluor_tools") with
+	  Some path -> Printf.printf "Local: %s\n" path
+        | None -> raise Not_found
+    with _ -> Printf.printf "Local: no folder found"
+  );
+  Printf.printf "System: %s\n" data_folder

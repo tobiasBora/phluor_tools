@@ -2,35 +2,56 @@ OASISFormat: 0.4
 Name:        phluor_tools
 Version:     1.0
 Synopsis:    Phluor_tools wants to provide tools to speed up the creation of
-  a website based on Eliom.
+  a website based on Eliom. It gives you some tools to create a modular website,
+  install external modules... It is supposed to be an equivalent of Django for
+  Ocaml and Ocsigen !
 Authors:     Léo Colisson
 License:     MIT
 Plugins:     META (0.4), StdFiles (0.4), DevFiles (0.4)
-FilesAB:     src/phluor_tools/phluor_default.ml.ab
+FilesAB:     src/phluor_tools_lib/settings.ml.ab
 
 Library phluor_tools_lib
   Path:       src/phluor_tools_lib
   BuildTools: ocamlbuild
   Pack:       true
-  Modules:    Bdd_check
-  BuildDepends: containers
+  CompiledObject: native
+  Modules:
+        Settings,
+        Create_website,
+        File_operation,
+        Website_info,
+        Manage_bricks,
+        Bdd_check
+  BuildDepends:
+        containers,
+        fileutils,
+        str,
+        unix,
+        cmdliner,
+        lwt,
+        lwt.unix
   
 Executable "phluor_tools"
   Path:       src/phluor_tools/
   BuildTools: ocamlbuild
   MainIs:     main.ml
+  CompiledObject: native
   BuildDepends:
+    containers,
     str,
     fileutils,
     unix,
-    cmdliner
+    cmdliner,
+    phluor_tools_lib,
+    lwt,
+    lwt.unix
     
 
 Executable install_data
   Path:		src/phluor_tools/
   BuildTools: ocamlbuild
   MainIs:	install_data.ml
-  BuildDepends:	fileutils, unix, str
+  BuildDepends:	fileutils, unix, str, containers, lwt, lwt.unix
   Install:	false
 
 PostInstallCommand: $install_data $datadir $pkg_name data

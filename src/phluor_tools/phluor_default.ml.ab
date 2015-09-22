@@ -1,4 +1,0 @@
-let name = "$(pkg_name)"
-let data_folder = "$(datadir)/$(pkg_name)/"
-
-

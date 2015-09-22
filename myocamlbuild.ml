@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 41b45942f2ee8f83e6ef0057996ed0fc) *)
+(* DO NOT EDIT (digest: 5b4d961b7502ab8ad42adb33399e0c96) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -611,7 +611,7 @@ let package_default =
        [("phluor_tools_lib", ["src/phluor_tools_lib"], [])];
      lib_c = [];
      flags = [];
-     includes = []
+     includes = [("src/phluor_tools", ["src/phluor_tools_lib"])]
   }
   ;;
 

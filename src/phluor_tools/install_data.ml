@@ -11,5 +11,5 @@ let () =
   let dst_name = FilePath.(string_of_path [dst]) in
   
   (* === Copy === *)
-  Phluor_file_operation.copy_and_replace_inside [] [] src_name dst_name;
+  Phluor_tools_lib.File_operation.copy_and_replace_inside [] [] src_name dst_name;
 
