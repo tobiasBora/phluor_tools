@@ -23,6 +23,8 @@ let pr x =
 (* ====================================== *)
 (* =====  Get the global structure  ===== *)
 (* ====================================== *)
+(* These functions are usefull to have the tree of build. *)
+
 
 (* This dictionnary contains the list of all bricks that are supposed
    to be compiled. It contains a tupple (bool, string list)
@@ -156,7 +158,7 @@ let clean_bricks ?brick_list () =
   send_command_bricks [|"make"; "clean"|] ?brick_list ()
 
 (* ================================= *)
-(* =====  Compilation process  ===== *)
+(* =====  Website compilation  ===== *)
 (* ================================= *)
 (* These functions are usefull to compile the website. They are
    pretty technical, a classic user shouldn't use them.*)
@@ -175,7 +177,8 @@ let get_packages_js ?brick_list () =
     []
   |> List.sort_uniq compare
 
-(** Get the list of all .cmo that needs to be included in the server *)
+(** Get the list of all .cmo that have already been compiled and that need
+    to be included in the server *)
 let get_cmo_files ?(side="client") ?brick_list () =
   let tree_bricks_dict = get_tree_bricks ?brick_list () in
   SDict.fold
@@ -366,7 +369,7 @@ let run () =
   let dico = F.list_of_file "link_server_conf.txt"
              |> List.filter
                (fun s -> not Str.(string_match (regexp "^#") s 0))
-             |> (fun s -> try List.hd with _ -> failwith "Cannot find any link_server_conf.txt that contains the name of a default .dico file.")
+             |> (fun s -> try List.hd s with _ -> failwith "Cannot find any link_server_conf.txt that contains the name of a default .dico file.")
              |> F.dico_of_file in
   let port =
     try F.dico_get_from_key dico "PORT"

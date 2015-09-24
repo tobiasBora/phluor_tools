@@ -8,6 +8,14 @@ file if the Enum stops during enumeration) *)
 module F = File_operation
 module S = Sequence
 let (//) = Filename.concat
+let sp = Printf.sprintf
+let (>>=) = Lwt.(>>=)
+let (>|=) = Lwt.(>|=)
+
+
+(* ================================= *)
+(* =====  Bricks Installation  ===== *)
+(* ================================= *)
 
 let reg_services = Str.regexp "/services$"
 
@@ -319,6 +327,273 @@ let get_brick ?(local=false) ?(interactiv=true) brick_name =
     else choose_in_list l
 
 
+(* ======================================== *)
+(* =====  Current Bricks Compilation  ===== *)
+(* ======================================== *)
+
+let get_current_brick_name () =
+  let a = FileUtil.pwd () in
+  F.go_root `Brick;
+  let b = FileUtil.pwd () in
+  let brick_name = FilePath.make_relative b a in
+  Sys.chdir a;
+  brick_name
+
+(** Use this to display the content of the command *)
+let run_command cmd_array =
+  Printf.printf "Command:%s\n%!" (Array.fold_left
+                        (fun a b -> sp "%s \"%s\"" a b) "" cmd_array);
+  Lwt_process.exec
+    (cmd_array.(0), cmd_array)
+  >>= fun status -> match status with
+    Unix.WEXITED 0 -> Lwt.return ()
+  | _ -> Lwt.fail (failwith "An error has been raised during compilation...")
+
+
+
+(* ----------------------------- *)
+(* -----  Auto find files  ----- *)
+(* ----------------------------- *)
+
+(** For all "file.***" that match the regexp string "extension"
+    (file must be a group), this function returns "prefix/<file>.<add_ext>".
+    This function should be used only if you know what you are doing, use
+    [get_server_targets] and [get_client_targets] instead.*)
+let get_targets ?(folder=".") ?(avoid=["^.*OcMake_brick.ml"; "^.*myocamlbuild.ml$"]) ~extensions ?(add_ext=".cmo") prefix =
+  let r_extensions = List.map Str.regexp extensions in
+  let r_avoid_s = List.map Str.regexp avoid in
+  let rec iter_until_true f l = match l with
+      [] -> false
+    | x::r -> (f x) || (iter_until_true f r)
+  in
+  FileUtil.ls folder
+  |> CCList.filter_map
+    (fun s ->
+       if not (iter_until_true (fun reg -> Str.string_match reg s 0)
+                 r_avoid_s)
+       then
+         if iter_until_true (fun reg -> Str.string_match reg s 0) r_extensions
+         then
+           Some (prefix // (Str.matched_group 1 s ^ add_ext))
+         else
+           None
+       else
+         None
+    )
+
+(** Return all the targets needed to generate the server part
+    (basically it returns [_server/<file>.cmo] when
+    [file.{eliom,ml,mlpack}] exists) *)
+let get_server_targets ?avoid ?(prefix="_server") () =
+  get_targets
+    ?avoid
+    ~extensions:["^\\(.*\\)\\.eliom$"; "^\\(.*\\)\\.ml$"; "^\\(.*\\)\\.mlpack$"]
+    prefix
+
+(** Return all the targets needed to generate the server part
+    (basically it returns [_client/<file>.cmo] when
+    [file.{eliom,ml,mlpack}] exists) *)
+let get_client_targets ?avoid ?(prefix="_client") () =
+  get_targets
+    ?avoid
+    ~extensions:["^\\(.*\\)\\.ml$"]
+    prefix
+
+(** Get all the libs that are present in package/lib_depends.txt *)
+let get_libs () =
+  let cwd = FileUtil.pwd () in
+  (* Search the root of the brick *)
+  F.go_root `Template;
+  let list_libs = F.list_of_file "package/lib_depends.txt"
+                  |> List.filter F.is_not_only_spaces in
+  Sys.chdir cwd;
+  list_libs
+
+(** It loads all subdirs that are required by others bricks *)
+let get_subdirs () =
+  let cwd = FileUtil.pwd () in
+  (* Search the root of the brick *)
+  while not FileUtil.(test Exists "root_brick") do Sys.chdir ".." done;
+  let tmp =
+    F.list_of_file "package/brick_depends.txt"
+    |> List.filter F.is_not_only_spaces
+    |> List.map
+      (fun s -> ["root/bricks_src/" ^ s ^ "/_build/_server";
+                 "root/bricks_src/" ^ s ^ "/_build/_client"])
+    |> List.flatten in
+  Sys.chdir cwd;
+  tmp
+
+
+(* --------------------------------- *)
+(* -----  Auto generate files  ----- *)
+(* --------------------------------- *)
+
+(** This function is used to automatically generate the mlpack files in
+    order to pack the whole brick into one module. It take in argument
+    a [(string, string) option] where the first string is the name of the
+    module and the second string is the name of the folder where all the
+    source files are. *)
+let generate_mlpack auto_generate_mlpack = match auto_generate_mlpack with
+    None -> ()
+  | Some (filename, folder) ->
+    let fn = filename ^ ".mlpack" in
+    (* List of files in the folder with no ext *)
+    let l =
+      try
+        get_targets
+          ~folder
+          ~add_ext:""
+          ~extensions:["^\\(.*\\)\\.eliom$"; "^\\(.*\\)\\.ml$"; "^\\(.*\\)\\.mlpack$"]
+          ""
+      with Sys_error err -> failwith (sp "It may be possible that the folder '%s' doesn't exists, so that the mlpack cannot be generated. Please create it and put some .ml/.eliom files in it (Error: %s)" folder err) in
+    (* This function transform "bricks_src/module" info "bricks_src/Module" *)
+    let file_to_module fn =
+      let i = ref (String.length fn - 1) in
+      while !i > 0 && fn.[!i] <> '/' do
+        decr i
+      done;
+      let i_final = if !i = 0 then 0 else !i + 1 in
+      Bytes.set fn i_final (Char.uppercase fn.[i_final]);
+      fn
+    in
+    let rec get_modules_str l = match l with
+        [] -> ""
+      | x::r -> sp "%s %s"
+                  (file_to_module x)
+                  (get_modules_str r)
+    in
+    let line_to_write = get_modules_str l in
+    (* Check that the file is different *)
+    let current_line =
+      try
+        let ic = open_in fn in
+        let l = input_line ic in
+        close_in ic;
+        l
+      with Sys_error _ -> "" in
+    if current_line <> line_to_write then begin
+      let oc = open_out fn in
+      Printf.fprintf oc "%s\n" line_to_write;
+      close_out oc;
+    end
+
+
+(* --------------------------------- *)
+(* -----  Compile the library  ----- *)
+(* --------------------------------- *)
+
+(** This is the function that calls ocamlbuild. *)
+let build_targets' ?(libs=[]) ?(subdirs=[]) ?(modules=[]) ?(preprocessor="") ?(others_options=[]) targets =
+  let libs_str = String.concat "," libs in
+  let subdirs_str = String.concat "," subdirs in
+  let modules_str = String.concat "," modules in
+  Lwt_list.iter_s
+    (fun tgt ->
+       run_command
+         (Array.of_list
+            (
+              ["ocamlbuild";
+               "-use-ocamlfind";
+               "-plugin-tags";
+               "package(eliom.ocamlbuild),package(containers),package(fileutils)"]
+              @ others_options
+              @ (if subdirs_str = "" then []
+                 else ["-Is"; subdirs_str])
+              @ (if libs_str = "" then []
+                 else ["-pkgs"; libs_str])
+              @ (if modules_str = "" then []
+                 else ["-mods"; modules_str])
+              @ (if preprocessor = "" then []
+              else ["-pp"; preprocessor])
+              @
+              [tgt]))
+       >>= fun _ ->
+       Lwt.return ()
+    )
+    targets
+
+
+let auto_build
+    ?auto_generate_mlpack       (* None if the brick isn't packed,
+                                   Some (pack_name, folder) else *)
+    ?libs                       (* List of the libs needed
+                                   (the ones in package/lib_depends.txt) *)
+    ?libs_client                (* Same as libs for client
+                                   (if None then libs).  *)
+    ?subdirs                    (* The included subdirs (-Is ...) *)
+    ?subdirs_client             (* Same as subdirs (if None then subdirs) *)
+    ?modules                    (* Additionnal modules .cmo (-mods) *)
+    ?modules_client             (* Same as modules for client
+                                   (if None then modules) *)
+    ?preprocessor               (* Preprocessor (eg: "camlp4o.opt -unsage" *)
+    ?preprocessor_client        (* Same as preprocessor but for client
+                                   if None then preprocessor *)
+    ?others_options             (* Anything else you want to give to ocamlbuild *)
+    ?others_options_client      (* Same as others options.
+                                   If none then others_options *)
+    ?server_targets             (* The list of server targets
+                                   (like "_server/<myfile>.cmo") *)
+    ?client_targets             (* The list of client targets
+                                   (like "_client/<myfile>.cmo") *)
+    ()
+  =
+  F.go_root `Brick;
+  let ifNone x f = match x with None -> f () | Some el -> el in
+  (* Generate the files *)
+  generate_mlpack auto_generate_mlpack;
+  let brick_name = get_current_brick_name () in
+  (* Compile the server part *)
+  Printf.printf "==== Compilation of the brick %s, server part ====\n"
+    brick_name;
+  let libs_no =
+    ifNone
+      libs
+      (fun () -> F.list_of_file "package/lib_depends.txt"
+                 |> List.filter F.is_not_only_spaces)
+  in
+  let subdirs_no =
+    ifNone
+      subdirs
+      (fun () -> F.list_of_file "package/brick_depends.txt"
+                 |> List.filter F.is_not_only_spaces
+                 |> List.map
+                   (fun s ->
+                      ["_build/root/bricks_src/" ^ s ^ "/_build/_server";
+                       "_build/root/bricks_src/" ^ s ^ "/_build/_client"])
+                 |> List.flatten)
+  in
+  let modules_no = ifNone modules (fun () -> []) in
+  let preprocessor_no = ifNone preprocessor (fun () -> "") in
+  let others_options_no = ifNone others_options (fun () -> []) in
+  let server_targets_no = ifNone server_targets get_server_targets in
+  build_targets'
+    ~libs:libs_no
+    ~subdirs:subdirs_no
+    ~modules:modules_no
+    ~preprocessor:preprocessor_no
+    ~others_options:others_options_no
+    server_targets_no
+  |> Lwt_main.run;
+  (* Compile the client part *)
+  let libs_client_no = ifNone libs_client (fun () -> libs_no) in
+  let subdirs_client_no = ifNone subdirs_client (fun () -> subdirs_no) in
+  let modules_client_no = ifNone modules (fun () -> modules_no) in
+  let preprocessor_client_no = ifNone preprocessor (fun () -> preprocessor_no) in
+  let others_options_client_no = ifNone others_options (fun () -> others_options_no) in
+  let client_targets_no = ifNone client_targets get_client_targets in
+  Printf.printf
+    "==== Compilation of the brick %s, client part ====\n"
+    brick_name;
+  build_targets'
+    ~libs:libs_client_no
+    ~subdirs:subdirs_client_no
+    ~modules:modules_client_no
+    ~preprocessor:preprocessor_client_no
+    ~others_options:others_options_client_no
+    client_targets_no
+  |> Lwt_main.run
+  
 (* ================================ *)
 (* =====  Cmdliner functions  ===== *)
 (* ================================ *)
