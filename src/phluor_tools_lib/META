@@ -1,9 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: f552922b818da8050d509d8885f92306)
+# DO NOT EDIT (digest: 826a6f181b14c270db23b09367db3ab4)
 version = "1.0"
 description =
 "Phluor_tools wants to provide tools to speed up the creation of a website based on Eliom. It gives you some tools to create a modular website, install external modules... It is supposed to be an equivalent of Django for Ocaml and Ocsigen !"
-requires = "containers fileutils str unix cmdliner lwt lwt.unix"
+requires = "containers fileutils str unix cmdliner lwt lwt.unix sequence"
 archive(byte) = "phluor_tools_lib.cma"
 archive(byte, plugin) = "phluor_tools_lib.cma"
 archive(native) = "phluor_tools_lib.cmxa"

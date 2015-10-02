@@ -1,4 +1,0 @@
-<extension findlib-package="fileutils"/>
-<extension findlib-package="pgocaml"/>
-<extension findlib-package="macaque"/>
-

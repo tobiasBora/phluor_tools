@@ -34,4 +34,18 @@ This module is useful to print debug texts on the output.
 <pre><span class="keyword">module</span> <a href="PhTools.PhConfig.html">PhConfig</a>: <code class="code">sig</code> <a href="PhTools.PhConfig.html">..</a> <code class="code">end</code></pre><div class="info">
 This module is useful to configure a brick.
 </div>
-</body></html>
+
+<pre><span class="keyword">module</span> <a href="PhTools.PhPath.html">PhPath</a>: <code class="code">sig</code> <a href="PhTools.PhPath.html">..</a> <code class="code">end</code></pre><div class="info">
+This module is usefull to get the path of some files.
+</div>
+
+<pre><span id="VALsp"><span class="keyword">val</span> sp</span> : <code class="type">('a, unit, string) Pervasives.format -> 'a</code></pre><div class="info ">
+Usefull shortcut to <code class="code">Printf.sprintf</code><br>
+</div>
+
+<pre><span id="VAL(//)"><span class="keyword">val</span> (//)</span> : <code class="type">FilePath.filename -> FilePath.filename -> FilePath.filename</code></pre><div class="info ">
+Usefull shortcut to concatenate files. Use <code class="code">"a" // "b"</code> instead of <code class="code">"a/b"</code><br>
+</div>
+
+<pre><span id="VAL(>>=)"><span class="keyword">val</span> (&gt;&gt;=)</span> : <code class="type">'a Lwt.t -> ('a -> 'b Lwt.t) -> 'b Lwt.t</code></pre>
+<pre><span id="VAL(>|=)"><span class="keyword">val</span> (&gt;|=)</span> : <code class="type">'a Lwt.t -> ('a -> 'b) -> 'b Lwt.t</code></pre></body></html>

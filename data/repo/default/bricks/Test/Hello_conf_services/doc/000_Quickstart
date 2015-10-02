@@ -1,4 +1,0 @@
-This module Test/Hello_conf_services shows several things that you can do with Phluor_tools.
-By watching the source code you will discover how to use javascript, how to get configurations
-from a configuration file located in config/Test/Hello_conf_services/main_dico.dico, you will
-see how to share an url between differents bricks... Enjoy !

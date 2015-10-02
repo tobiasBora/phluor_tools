@@ -1,1 +1,0 @@
-This is the default welcome message. You can edit it to give to a user a short instruction to the user who has just installed your brick.

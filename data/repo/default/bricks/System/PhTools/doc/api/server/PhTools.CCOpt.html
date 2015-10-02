@@ -29,13 +29,13 @@ A library written by compagnion_cube to deal with options.<br>
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = <code class="type">'a option</code> </pre>
 <div class="info ">
 <h1 id="1_Options">Options</h1>
-       Please note that the <a href="PhTools.CCOpt.html"><code class="code">PhTools.CCOpt</code></a> module is exactly
-       the one provide by compagnion_cube in <code class="code">containers</code> (that's why
-       it needs <code class="code">containers</code> to compile). I put a copy here because
-       like that it's possible to have a local documention (just open
-       <code class="code">src/System/PhTools/doc/api</code> to find it) and it's easier to
-       include it in both server and client code. Thank you for your
-       library compagnion_cube.<br>
+      Please note that the <a href="PhTools.CCOpt.html"><code class="code">PhTools.CCOpt</code></a> module is exactly
+      the one provide by compagnion_cube in <code class="code">containers</code> (that's why
+      it needs <code class="code">containers</code> to compile). I put a copy here because
+      like that it's possible to have a local documention (just open
+      <code class="code">bricks_src/System/PhTools/doc/api</code> to find it) and it's easier to
+      include it in both server and client code. Thank you for your
+      library compagnion_cube.<br>
 </div>
 
 
@@ -97,17 +97,17 @@ Open the option, possibly failing if it is <code class="code">None</code><br>
 
 <pre><span id="VALsequence_l"><span class="keyword">val</span> sequence_l</span> : <code class="type">'a <a href="PhTools.CCOpt.html#TYPEt">t</a> list -> 'a list <a href="PhTools.CCOpt.html#TYPEt">t</a></code></pre><div class="info ">
 <code class="code">sequence_l [x1; x2; ...; xn]</code> returns <code class="code">Some [y1;y2;...;yn]</code> if
-every <code class="code">xi</code> is <code class="code">Some yi</code>. Otherwise, if the list contains at least
-one <code class="code">None</code>, the result is <code class="code">None</code>.<br>
+      every <code class="code">xi</code> is <code class="code">Some yi</code>. Otherwise, if the list contains at least
+      one <code class="code">None</code>, the result is <code class="code">None</code>.<br>
 </div>
 
 <pre><span id="VALwrap"><span class="keyword">val</span> wrap</span> : <code class="type">?handler:(exn -> bool) -> ('a -> 'b) -> 'a -> 'b option</code></pre><div class="info ">
 <code class="code">wrap f x</code> calls <code class="code">f x</code> and returns <code class="code">Some y</code> if <code class="code">f x = y</code>. If <code class="code">f x</code> raises
-any exception, the result is <code class="code">None</code>. This can be useful to wrap functions
-such as <code class="code">Map.S.find</code>.<br>
+      any exception, the result is <code class="code">None</code>. This can be useful to wrap functions
+      such as <code class="code">Map.S.find</code>.<br>
 </div>
 <div class="param_info"><code class="code">handler</code> : the exception handler, which returns <code class="code">true</code> if the
-exception is to be caught.</div>
+      exception is to be caught.</div>
 
 <pre><span id="VALwrap2"><span class="keyword">val</span> wrap2</span> : <code class="type">?handler:(exn -> bool) -> ('a -> 'b -> 'c) -> 'a -> 'b -> 'c option</code></pre><div class="info ">
 <code class="code">wrap2 f x y</code> is similar to <a href="PhTools.CCOpt.html#VALwrap"><code class="code">PhTools.CCOpt.wrap</code></a> but for binary functions.<br>

@@ -26,6 +26,10 @@ let remove_trailing_spaces str =
 let is_not_only_spaces str =
   not (Str.string_match (Str.regexp "^[ \t\n]*$") str 0)
 
+(** Check that a string isn't empty/only spaces or a comment *)
+let is_not_only_spaces_or_comment str =
+  not (Str.string_match (Str.regexp "^#") str 0)
+
 (** Create a sequence from an input channel *)
 let seq_of_ic ic = fun f -> try while true do f (input_line ic) done
   with End_of_file -> ()
@@ -62,6 +66,17 @@ let write_in_file ?(mode=[Open_wronly; Open_creat; Open_trunc; Open_text]) ?(per
   S.iter (fun s -> output_string oc (s ^ "\n")) seq;
   flush oc;
   close_out oc
+
+let file_of_list ?mode ?perm filename list =
+  write_in_file ?mode ?perm filename (S.of_list list)
+
+let come_back path x = Sys.chdir path; x
+  
+let save_path f =
+  let orig_path = FileUtil.pwd () in
+  f ()
+  |> come_back orig_path
+    
 
 exception Empty_list of string
 
@@ -459,10 +474,6 @@ let get_path_obj_repo obj_type name =
     |> List.find (FileUtil.(test Is_dir))
   with Not_found -> failwith (sp "The folder \"%s\" isn't present in the repositories." name)
 
-(** This function gives the path to an object (bricks/templates) in the current website *)
-let get_path_obj_website obj_type name =
-  "bricks_src" // name
-
 let get_message_file obj_type name =
   (get_path_obj_repo obj_type name) // "package" // "message.txt"
 
@@ -483,6 +494,16 @@ let rec go_root ?obj_name obj_type =
   | (Some br, `Brick) -> (go_root `Template;
                           Sys.chdir ("bricks_src" // br))
   | _ -> failwith "Go_root used with bad parameters"
+
+let go_brick brick_name = go_root ~obj_name:brick_name `Brick
+
+(** This function gives the asbolute path to an object (bricks/templates) in the current website *)
+let get_path_obj_website ?obj_name obj_type =
+  begin fun () ->
+    go_root ?obj_name obj_type;
+    FileUtil.pwd ()
+  end |> save_path
+
 
 (** This function gives a list of all objects (bricks or templates) available in the repo. If you want to get the bricks in the current website, please use [Website_info.get_installed_bricks] *)
 let get_list_obj_repo obj_type =

@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: d9c791eac16932a6d0cf21a226bd0520) *)
+(* DO NOT EDIT (digest: b93186d807ee5c38e5b63afa303b749d) *)
 
 This is the INSTALL file for the phluor_tools distribution.
 
@@ -17,6 +17,7 @@ In order to compile this package, you will need:
 * fileutils
 * cmdliner for library phluor_tools_lib, executable phluor_tools
 * lwt
+* sequence
 
 Installing
 ==========

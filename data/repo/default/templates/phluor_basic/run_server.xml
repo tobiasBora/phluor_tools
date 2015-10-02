@@ -1,18 +1,18 @@
 <ocsigen>
   <server>
     <port>%%PORT%%</port>
-    <logdir>local/var/log/%%PROJ_NAME%%</logdir>
-    <datadir>local/var/data/%%PROJ_NAME%%</datadir>
+    <logdir>local/var/log/</logdir>
+    <datadir>local/var/data/</datadir>
     <charset>utf-8</charset>
 
-    <commandpipe>local/var/run/monproj-cmd</commandpipe>
+    <commandpipe>local/var/run/website-cmd</commandpipe>
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
     <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite"/>
     <extension findlib-package="eliom.server"/>
     %%INC(extensions.xml)%%
     <host hostfilter="*">
       <static dir="%%STATIC%%" />
-      <static dir="local/var/www/monproj/eliom" />
+      <static dir="local/var/static/" />
       <!--  Order matter ! -->
       %%INC(modules.xml)%%
       <eliom/>

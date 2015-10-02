@@ -1,3 +1,0 @@
-BRICK_NAME=%%_NAMESPACE_%%/%%_SHORTNAME_%%
-# Useless for the moment
-BRICK_ONE_WORD=%%_ONE_WORD_%%

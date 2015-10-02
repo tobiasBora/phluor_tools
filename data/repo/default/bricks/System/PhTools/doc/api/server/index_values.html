@@ -15,6 +15,11 @@
 <h1>Index of values</h1>
 <table>
 <tr><td align="left"><br></td></tr>
+<tr><td><a href="PhTools.html#VAL(//)">(//)</a> [<a href="PhTools.html">PhTools</a>]</td>
+<td><div class="info">
+Usefull shortcut to concatenate files.
+</div>
+</td></tr>
 <tr><td><a href="PhTools.CCOpt.html#VAL(<$>)">(&lt;$&gt;)</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td></td></tr>
 <tr><td><a href="PhTools.CCOpt.html#VAL(<*>)">(&lt;*&gt;)</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
@@ -29,11 +34,15 @@
 Monadic bind
 </div>
 </td></tr>
+<tr><td><a href="PhTools.html#VAL(>>=)">(&gt;&gt;=)</a> [<a href="PhTools.html">PhTools</a>]</td>
+<td></td></tr>
 <tr><td><a href="PhTools.CCOpt.html#VAL(>|=)">(&gt;|=)</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td><div class="info">
 Infix version of <a href="PhTools.CCOpt.html#VALmap"><code class="code">PhTools.CCOpt.map</code></a>
 </div>
 </td></tr>
+<tr><td><a href="PhTools.html#VAL(>|=)">(&gt;|=)</a> [<a href="PhTools.html">PhTools</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>B</td></tr>
 <tr><td><a href="PhTools.PhDebug.html#VALbasic_printf">basic_printf</a> [<a href="PhTools.PhDebug.html">PhTools.PhDebug</a>]</td>
 <td><div class="info">
@@ -60,6 +69,17 @@ Same as printf but doesn't display the brickname at the beginning.
 <tr><td><a href="PhTools.CCOpt.html#VALcompare">compare</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>D</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALdata">data</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+The data folder.
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALdata_brick">data_brick</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+Use this folder to put every data that shouln't be accessible to the
+      user from the web and should stay .
+</div>
+</td></tr>
 <tr><td><a href="PhTools.PhConfig.html#VALdico_from_xml">dico_from_xml</a> [<a href="PhTools.PhConfig.html">PhTools.PhConfig</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>E</td></tr>
@@ -117,6 +137,11 @@ Open the option, possibly failing if it is <code class="code">None</code>
 <code class="code">get_lazy default_fn x</code> unwraps <code class="code">x</code>, but if <code class="code">x = None</code> it returns <code class="code">default_fn ()</code> instead.
 </div>
 </td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALget_static_file">get_static_file</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+Use this function to get the path of an existing file.
+</div>
+</td></tr>
 <tr><td><a href="PhTools.PhConfig.html#VALget_value">get_value</a> [<a href="PhTools.PhConfig.html">PhTools.PhConfig</a>]</td>
 <td><div class="info">
 <code class="code">get_value dico key</code> get in the dico the key <code class="code">key</code>.
@@ -150,6 +175,12 @@ Get the xml associated with the brick
 <tr><td><a href="PhTools.CCOpt.html#VALiter">iter</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td><div class="info">
 Iterate on 0 or 1 elements
+</div>
+</td></tr>
+<tr><td align="left"><br>L</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALlog">log</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+The log folder.
 </div>
 </td></tr>
 <tr><td align="left"><br>M</td></tr>
@@ -206,7 +237,12 @@ Monadic return
 <tr><td><a href="PhTools.CCOpt.html#VALsequence_l">sequence_l</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td><div class="info">
 <code class="code">sequence_l [x1; x2; ...; xn]</code> returns <code class="code">Some [y1;y2;...;yn]</code> if
-every <code class="code">xi</code> is <code class="code">Some yi</code>.
+      every <code class="code">xi</code> is <code class="code">Some yi</code>.
+</div>
+</td></tr>
+<tr><td><a href="PhTools.html#VALsp">sp</a> [<a href="PhTools.html">PhTools</a>]</td>
+<td><div class="info">
+Usefull shortcut to <code class="code">Printf.sprintf</code>
 </div>
 </td></tr>
 <tr><td><a href="PhTools.PhDebug.html#VALsprintf">sprintf</a> [<a href="PhTools.PhDebug.html">PhTools.PhDebug</a>]</td>
@@ -217,6 +253,30 @@ Same thing that printf but generate a string
 <tr><td><a href="PhTools.PhDebug.html#VALstart_time">start_time</a> [<a href="PhTools.PhDebug.html">PhTools.PhDebug</a>]</td>
 <td><div class="info">
 The start time of the server
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALstatic_cte">static_cte</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+This static folder must contain only default files that arent's
+      supposed to change (Hence '<code class="code">_cte</code>').
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALstatic_cte_brick">static_cte_brick</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+This folder is the sub-folder in the constant static dir that should
+      contain all static files of your brick.
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALstatic_user">static_user</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+This static folder can be modified (the modifications will stay even
+      after a website update).
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALstatic_user_brick">static_user_brick</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+This folder is the sub-folder in the user static dir that should
+      contain all static files of your brick edited by the user.
 </div>
 </td></tr>
 <tr><td align="left"><br>T</td></tr>
@@ -235,6 +295,11 @@ The start time of the server
 <tr><td><a href="PhTools.CCOpt.html#VALwrap2">wrap2</a> [<a href="PhTools.CCOpt.html">PhTools.CCOpt</a>]</td>
 <td><div class="info">
 <code class="code">wrap2 f x y</code> is similar to <a href="PhTools.CCOpt.html#VALwrap"><code class="code">PhTools.CCOpt.wrap</code></a> but for binary functions.
+</div>
+</td></tr>
+<tr><td><a href="PhTools.PhPath.html#VALwww">www</a> [<a href="PhTools.PhPath.html">PhTools.PhPath</a>]</td>
+<td><div class="info">
+The folder that contains all the website
 </div>
 </td></tr>
 </table>

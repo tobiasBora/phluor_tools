@@ -1,4 +1,0 @@
-<eliommodule module="modules/%%BRICK_NAME%%/server_part.cma">
-  <config key="example" value="%%EXAMPLE%%" />
-  <config key="silent_conf" value="%%SILENT_CONF%%" />
-</eliommodule>

@@ -1,1 +1,0 @@
-A library that provide practical functions to deal with Javascript.

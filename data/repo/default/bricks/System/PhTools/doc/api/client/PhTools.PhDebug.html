@@ -31,7 +31,7 @@ This module is useful to print debug texts on the output.<br>
 <code class="code">printf brick_name brick_verb verb fmt</code> will print the format <code class="code">fmt</code> if <code class="code">brick_verb &lt;= verb</code>, and the output will look like "<code class="code">[brickname:verb][hour] Message from fmt</code>".
 <p>
 
-Usually you put at the top of your eliom file something like <code class="code">let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt</code> to use a shorter version.<br>
+      Usually you put at the top of your eliom file something like <code class="code">let printf verb fmt = PhDebug.printf brick_name brick_verb verb fmt</code> to use a shorter version.<br>
 </div>
 
 <pre><span id="VALsprintf"><span class="keyword">val</span> sprintf</span> : <code class="type">string -> int -> int -> ('a, unit, string, string) Pervasives.format4 -> 'a</code></pre><div class="info ">
@@ -61,7 +61,7 @@ Get the default verbosity (defined in <code class="code">config/System/PhTools/m
 </div>
 <br>
 <h2 id="2_Basicfunctions">Basic functions</h2>
-	Use them only if you know what you are doing. It is usually recommended to use <a href="PhTools.PhDebug.html#VALprintf"><code class="code">PhTools.PhDebug.printf</code></a> instead.<br>
+      Use them only if you know what you are doing. It is usually recommended to use <a href="PhTools.PhDebug.html#VALprintf"><code class="code">PhTools.PhDebug.printf</code></a> instead.<br>
 
 <pre><span id="VALbasic_printf"><span class="keyword">val</span> basic_printf</span> : <code class="type">int -> int -> ('a, unit, string, unit) Pervasives.format4 -> 'a</code></pre><div class="info ">
 Same as printf but doesn't display the brickname at the beginning. Not recommended to use if it's not for a good reason.<br>

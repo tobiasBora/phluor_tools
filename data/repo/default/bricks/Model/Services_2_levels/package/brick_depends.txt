@@ -1,4 +1,0 @@
-%%_NAMESPACE_%%/%%_SHORTNAME_%%/services
-System/Kernel
-System/PhTools
-

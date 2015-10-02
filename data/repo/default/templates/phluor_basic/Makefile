@@ -50,31 +50,33 @@ new_www:
 	rm -rf .www_bak/
 	mv www/ .www_bak/ > /dev/null 2>&1; exit 0 # Does a proper way exists ?
 # Copy
+	mkdir -p www/config
+	mkdir -p www/local/var/log/$(PROJ_NAME)/
+	ln -sf ../../../data www/local/var/data
+	mkdir -p www/local/var/run/
 	mkdir -p www/modules
 	mkdir -p www/bin_js
 	mkdir -p www/static/bricks/
-	mkdir -p www/static/phluoruser/
-	ln -s var/ www/static/var
-	mkdir -p www/config
-	mkdir -p www/local/var/log/$(PROJ_NAME)/
-	mkdir -p www/local/var/data/$(PROJ_NAME)/
-	mkdir -p www/local/var/run/
+#	mkdir -p www/static/phluoruser/
+	ln -sf ../../../static/ www/local/var/static
 
-# TODO : make only one
+# TODO : avoid to use 3 rules repeating some stuff
 www:
+	mkdir -p www/config
+	mkdir -p www/local/var/log/$(PROJ_NAME)/
+	ln -sf ../../../data www/local/var/data
+	mkdir -p www/local/var/run/
 	mkdir -p www/modules
 	mkdir -p www/bin_js
 	mkdir -p www/static/bricks/
-	mkdir -p www/static/phluoruser/
-	mkdir -p www/config
-	mkdir -p www/local/var/log/$(PROJ_NAME)/
-	mkdir -p www/local/var/data/$(PROJ_NAME)/
-	mkdir -p www/local/var/run/
+#	mkdir -p www/static/phluoruser/
+	ln -sf ../../../static/ www/local/var/static
 
 ### STATIC
-# Maybe link could be better if it's in a subfolder ?
 update_static: _dep _dep_lib | www/
-	cp -r static/* www/static/phluoruser/
+#	cp -r static/* www/static/phluoruser/
+	ln -sf ../../../static/ www/local/var/static
+	ln -sf ../../../data www/local/var/data
 	$(foreach brick, $(shell cat _dep), echo "copying static $(brick)..."; mkdir -p www/static/bricks/$(brick); $(PHLUOR_TOOLS) copy src/$(brick)/static/ www/static/bricks/$(brick)/ --copy_inside --dico_content src/$(brick)/package/name.dico --avoid_error;) exit 0
 
 
@@ -99,7 +101,7 @@ update_server_part: _dep _dep_lib | www/
 # - Include text from dico src/<brick name>/config/main.conf
 config_brick = echo "--$(1)$(2)--" && if [ -d config/$(1) ]; then $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix config/$(1)/ --avoid_error; else $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --inc --keep_inc --prefix src/$(1)/config/ --avoid_error; fi && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(2)/package/name.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content config/$(1)/main.dico --avoid_error && $(PHLUOR_TOOLS) copy www/run_server.xml www/run_server.xml --dico_content src/$(1)/config/main.dico --avoid_error
 
-update_config: _dep _dep_lib link_server_conf.txt | www/
+update_config: _dep _dep_lib link_server_conf.txt | www
 	@echo "--- Server configuration..."
 	cp run_server.xml www/run_server.xml
 # Edit the file www/run_server with the system dico
@@ -159,7 +161,7 @@ clean:
 # clean could forgot some bricks if _dep is bad due to a wrong configuration
 # so this could avoid lot's of problems.
 	$(foreach brick, $(shell cat bricks_included.txt) $(shell cat _dep), echo "--- Cleaning $(brick)"; cd src/$(brick)/; make clean_all; cd $(PWD);)
-	rm -rf www/ _dep _dep_lib _client _dep_no_uniq
+	rm -rf www/ _dep _dep_lib _client _dep_no_uniq client_part/
 
 clean_only_current:
 	rm -rf www/ _dep _dep_lib _client _dep_no_uniq

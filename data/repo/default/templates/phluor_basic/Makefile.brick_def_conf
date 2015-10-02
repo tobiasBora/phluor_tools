@@ -27,4 +27,4 @@ CLIENT_PACKAGES ?= $(shell cat package/lib_depends.txt)
 SERVER_INCLUDE_DIRS ?=
 CLIENT_INCLUDE_DIRS ?=
 
-
+DOC_SOURCES ?= $(wildcard *.eliomi) $(wildcard *.mli)

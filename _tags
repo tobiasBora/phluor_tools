@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: d8fffb3ba23ca84e5d362f6c82167f2d)
+# DO NOT EDIT (digest: 50c3cf841c05f33786a782f87e0ff1d7)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -27,6 +27,7 @@ true: annot, bin_annot
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_fileutils
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_lwt
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_lwt.unix
+<src/phluor_tools_lib/*.ml{,i,y}>: pkg_sequence
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_str
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_unix
 # Executable phluor_tools
@@ -35,6 +36,7 @@ true: annot, bin_annot
 "src/phluor_tools/main.native": pkg_fileutils
 "src/phluor_tools/main.native": pkg_lwt
 "src/phluor_tools/main.native": pkg_lwt.unix
+"src/phluor_tools/main.native": pkg_sequence
 "src/phluor_tools/main.native": pkg_str
 "src/phluor_tools/main.native": pkg_unix
 "src/phluor_tools/main.native": use_phluor_tools_lib
@@ -45,12 +47,14 @@ true: annot, bin_annot
 "src/phluor_tools/install_data.byte": pkg_fileutils
 "src/phluor_tools/install_data.byte": pkg_lwt
 "src/phluor_tools/install_data.byte": pkg_lwt.unix
+"src/phluor_tools/install_data.byte": pkg_sequence
 "src/phluor_tools/install_data.byte": pkg_str
 "src/phluor_tools/install_data.byte": pkg_unix
 <src/phluor_tools/*.ml{,i,y}>: pkg_containers
 <src/phluor_tools/*.ml{,i,y}>: pkg_fileutils
 <src/phluor_tools/*.ml{,i,y}>: pkg_lwt
 <src/phluor_tools/*.ml{,i,y}>: pkg_lwt.unix
+<src/phluor_tools/*.ml{,i,y}>: pkg_sequence
 <src/phluor_tools/*.ml{,i,y}>: pkg_str
 <src/phluor_tools/*.ml{,i,y}>: pkg_unix
 # OASIS_STOP

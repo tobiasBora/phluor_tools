@@ -32,6 +32,28 @@ let pr x =
    dependances of the brick. *)
 module SDict = Map.Make(String)
 
+let get_current_brick_name () =
+  begin fun () ->
+    let a = FileUtil.pwd () in
+    F.go_root `Brick;
+    let b = FileUtil.pwd () in
+    FilePath.make_relative b a
+  end |> F.save_path
+
+(** Get the root path of the current website *)
+let get_root () =
+  begin fun () ->
+    F.go_root `Template;
+    FileUtil.pwd ()
+  end |> F.save_path
+
+(** Get the root path of the current brick *)
+let get_brick_root () =
+  begin fun () ->
+    F.go_root `Brick;
+    FileUtil.pwd ()
+  end |> F.save_path
+
 (* When I use a "_" at the end like in fctname_ that means that the function
    is only for the current brick. Else it provide in a recursive way. *)
 let get_brick_depends_ brick_name =
@@ -267,7 +289,7 @@ let _copy_static_bricks ?brick_list () =
          []
          (F.dico_of_file
             ~avoid_error:true
-            (sp "bricks_src/%s/package/name.dico" brick))
+            (sp "bricks_src/%s/package/info.dico" brick))
          ~avoid_error:true
          (sp "bricks_src/%s/static/" brick)
          (sp "www/static/bricks/%s" brick))
@@ -322,7 +344,7 @@ let _update_config () =
       (* The priority for config dico is :
          - Include files of config/<brick>
          -    Else include files of bricks_src/<brick>/config
-         - Include text from bricks_src/<initial brick>/package/name.dico (only BRICK_NAME)
+         - Include text from bricks_src/<initial brick>/package/info.dico (only BRICK_NAME)
          - Include text from config/<brick>/main.conf
          - Include text from bricks_src/<brick>/config/main.conf
       *)
@@ -334,7 +356,7 @@ let _update_config () =
           ~inc:true ~keep_inc:true ~avoid_error:true file_conf file_conf;
       F.replace_in_file
         []
-        ((sp "bricks_src/%s/package/name.dico" brick_name) |> F.dico_of_file)
+        ((sp "bricks_src/%s/package/info.dico" brick_name) |> F.dico_of_file)
         ~avoid_error:true file_conf file_conf;
       F.replace_in_file
         []
@@ -407,6 +429,8 @@ let compile_cmdl copts brick_name =
      "" ->
      (* Compile everything *)
      compile_bricks ()
+   | "." ->
+     compile_bricks ~brick_list:[get_current_brick_name ()] ()
    | _ ->
      (* Compile only a given brick *)
      compile_bricks ~brick_list:[brick_name] ());
@@ -439,52 +463,4 @@ let all_cmdl copts =
   compile_cmdl copts "";
   generate_www_cmdl copts;
   run_cmdl copts;
-
-
-(*   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "list_js_packages" then *)
-(*     begin *)
-(*       verbose := false; *)
-(*       get_packages_js brick_list *)
-(*       |> List.iter (Printf.printf "-package %s "); *)
-(*       Printf.printf "\n" *)
-(*     end *)
-(*   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "get_cmo_files" then *)
-(*     begin *)
-(*       verbose := false; *)
-(*       get_cmo_files brick_list *)
-(*       |> List.iter (Printf.printf "%s "); *)
-(*       Printf.printf "\n" *)
-(*     end *)
-(*   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "build_js_file" then *)
-(*     let js_file = "client_part/main_js.js" in *)
-(*     let cmos = get_cmo_files brick_list in *)
-(*     let must_compile = *)
-(*       if not FileUtil.(test Exists js_file) then true *)
-(*       else *)
-(*         let time_js = FileUtil.((stat js_file).modification_time) in *)
-(*         (\* Check that the cmo files are more recent than the js file *\) *)
-(*         cmos *)
-(*         |> List.map FileUtil.(test (Is_newer_than time_js)) *)
-(*         |> List.fold_left (||) false *)
-(*     in *)
-(*     if must_compile then *)
-(*       let packages = *)
-(*         get_packages_js brick_list *)
-(*         |> List.map (fun s -> [ "-package" ; s]) *)
-(*         |> List.flatten *)
-(*       in *)
-(*       Lwt_main.run *)
-(*         (_run_command' *)
-(*            (([ *)
-(*                C.js_of_eliom; *)
-(*                "-linkall"; *)
-(*                "-o"; *)
-(*                "client_part/main_js.js"] *)
-(*                @ packages *)
-(*                @ cmos) *)
-(*             |> Array.of_list)) *)
-(*   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "copy_static_bricks" then *)
-(*       copy_static_bricks brick_list *)
-(*   else *)
-(*     Printf.printf "%s%!" usage *)
 

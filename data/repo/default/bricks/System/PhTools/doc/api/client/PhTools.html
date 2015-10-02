@@ -29,4 +29,10 @@ A library written by compagnion_cube to deal with options.
 <pre><span class="keyword">module</span> <a href="PhTools.PhDebug.html">PhDebug</a>: <code class="code">sig</code> <a href="PhTools.PhDebug.html">..</a> <code class="code">end</code></pre><div class="info">
 This module is useful to print debug texts on the output.
 </div>
-</body></html>
+
+<pre><span id="VALsp"><span class="keyword">val</span> sp</span> : <code class="type">('a, unit, string) Pervasives.format -> 'a</code></pre><div class="info ">
+Usefull shortcut to <code class="code">Printf.sprintf</code><br>
+</div>
+
+<pre><span id="VAL(>>=)"><span class="keyword">val</span> (&gt;&gt;=)</span> : <code class="type">'a Lwt.t -> ('a -> 'b Lwt.t) -> 'b Lwt.t</code></pre>
+<pre><span id="VAL(>|=)"><span class="keyword">val</span> (&gt;|=)</span> : <code class="type">'a Lwt.t -> ('a -> 'b) -> 'b Lwt.t</code></pre></body></html>

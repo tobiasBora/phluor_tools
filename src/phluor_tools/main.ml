@@ -215,13 +215,13 @@ let get_loaded_bricks_cmd =
   Term.info "get_loaded_bricks" ~sdocs:copts_sect ~doc ~man
 
 let compile_cmd = 
-  let doc = "It compiles the whole current project. You can specify a brick name if you want to compile only one brick and its dependances." in
+  let doc = "It compiles the whole current project if you don't give any brick name. You can specify a brick name if you want to compile only one brick and its dependances, or use a point ('.') to compile the current brick and its dependances." in
   let man = [
     `S "DESCRIPTION";
-    `P "It compiles the whole current project."] @ help_secs
+    `P doc] @ help_secs
   in
   let brick_name = 
-    let doc = "Name of the brick (if not given compile everything)" in
+    let doc = "Name of the brick (if not given compile everything, if just a point compile only the current brick)" in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
   Term.(pure Website_info.compile_cmdl $ copts_t $ brick_name),
