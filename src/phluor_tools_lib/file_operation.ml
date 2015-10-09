@@ -81,14 +81,16 @@ let save_path f =
 exception Empty_list of string
 
 (** Prompt a list and ask to the user to choose an item *)
-let choose_in_list l =
+let choose_in_list ?(force_ask=false) l =
   let nb_el = List.length l in
   if nb_el = 0 then
     raise (Empty_list "No element corresponds to the description")
+  else if nb_el = 1 && not force_ask then
+    fst (List.hd l)
   else begin
     pr "Please choose an element:\n";
     let display_list l =
-      List.iteri (fun i s -> pr "%d - %s\n" (i+1) (snd s)) l in
+      List.iteri (fun i s -> pr "%d - %s\n%!" (i+1) (snd s)) l in
     let rec aux () =
       try
         display_list l;
