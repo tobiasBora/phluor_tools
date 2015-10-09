@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 50c3cf841c05f33786a782f87e0ff1d7)
+# DO NOT EDIT (digest: ef401de1b213acb36a1fce175afa870f)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -19,7 +19,7 @@ true: annot, bin_annot
 "src/phluor_tools_lib/settings.cmx": for-pack(Phluor_tools_lib)
 "src/phluor_tools_lib/create_website.cmx": for-pack(Phluor_tools_lib)
 "src/phluor_tools_lib/file_operation.cmx": for-pack(Phluor_tools_lib)
-"src/phluor_tools_lib/website_info.cmx": for-pack(Phluor_tools_lib)
+"src/phluor_tools_lib/local_website.cmx": for-pack(Phluor_tools_lib)
 "src/phluor_tools_lib/manage_bricks.cmx": for-pack(Phluor_tools_lib)
 "src/phluor_tools_lib/Bdd_check.cmx": for-pack(Phluor_tools_lib)
 <src/phluor_tools_lib/*.ml{,i,y}>: pkg_cmdliner

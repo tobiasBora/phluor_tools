@@ -6,10 +6,11 @@
 
 
 module F = File_operation
-module W = Website_info
+module LW = Local_website
 module FU = FileUtil
 module S = Sequence
 let (//) = Filename.concat
+let pr = Printf.printf
 let sp = Printf.sprintf
 let (>>=) = Lwt.(>>=)
 let (>|=) = Lwt.(>|=)
@@ -320,7 +321,7 @@ let get_brick ?(local=false) ?(interactiv=true) brick_name =
   let (is_installed, available_bricks) =
     if local then
       (is_brick_installed brick_name,
-       W.get_installed_bricks ())
+       LW.get_installed_bricks ())
     else
       (false,
        F.get_list_obj_repo `Brick)
@@ -357,7 +358,14 @@ let run_command cmd_array =
     Unix.WEXITED 0 -> Lwt.return ()
   | _ -> Lwt.fail (failwith "An error has been raised during compilation...")
 
+(** Get the name of the current brick *)
+let get_current_brick_name () = LW.get_current_brick_name ()
 
+(** Get the root path of the current brick *)
+let get_current_brick_path () = LW.get_current_brick_path ()
+
+(** Get the root path of a given brick *)
+let get_brick_path brick_name = LW.get_brick_path brick_name
 
 (* ----------------------------- *)
 (* -----  Auto find files  ----- *)
@@ -630,7 +638,7 @@ let auto_build
     let ifNone x f = match x with None -> f () | Some el -> el in
     (* Generate the mlpack files *)
     generate_mlpack auto_generate_mlpack;
-    let brick_name = W.get_current_brick_name () in
+    let brick_name = LW.get_current_brick_name () in
     (* Generate the xml files in the config_model folder *)
     if auto_generate_config_files then
       (generate_config_extensions_xml brick_name;
@@ -687,6 +695,14 @@ let auto_build
     |> Lwt_main.run
   end |> F.save_path
 
+let default_OcMake ?(auto_build_f=auto_build) () =
+  let n = Array.length Sys.argv
+  and t = Sys.argv in
+  if n = 1 then
+    auto_build_f ()
+  else if n = 2 && t.(1) = "get_root" then
+    pr "%s\n" (LW.get_current_brick_path ())
+
 (* ================================ *)
 (* =====  Cmdliner functions  ===== *)
 (* ================================ *)
@@ -733,7 +749,7 @@ let update_config_brick_cmdl copts brick_name =
   end |> F.save_path
   
 let cd copts_t brick_name = match brick_name with
-    "." -> F.go_root `Template
+    "." -> Printf.printf "cd %s\n" (LW.get_website_path ())
   | _ ->
     get_brick ~local:true brick_name
-    |> F.go_brick
+    |> fun br -> Printf.printf "cd %s\n" (get_brick_path br)

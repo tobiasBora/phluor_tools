@@ -505,7 +505,7 @@ let get_path_obj_website ?obj_name obj_type =
   end |> save_path
 
 
-(** This function gives a list of all objects (bricks or templates) available in the repo. If you want to get the bricks in the current website, please use [Website_info.get_installed_bricks] *)
+(** This function gives a list of all objects (bricks or templates) available in the repo. If you want to get the bricks in the current website, please use [Local_website.get_installed_bricks] *)
 let get_list_obj_repo obj_type =
   let prefix = get_prefix_of_obj obj_type in
   let rootf = get_rootfilename_of_obj obj_type in

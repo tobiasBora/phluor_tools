@@ -19,7 +19,7 @@ Library phluor_tools_lib
         Settings,
         Create_website,
         File_operation,
-        Website_info,
+        Local_website,
         Manage_bricks,
         Bdd_check
   BuildDepends:

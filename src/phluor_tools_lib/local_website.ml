@@ -32,6 +32,7 @@ let pr x =
    dependances of the brick. *)
 module SDict = Map.Make(String)
 
+(* Duplicate in Manage_bricks *)
 let get_current_brick_name () =
   begin fun () ->
     let a = FileUtil.pwd () in
@@ -41,18 +42,15 @@ let get_current_brick_name () =
   end |> F.save_path
 
 (** Get the root path of the current website *)
-let get_root () =
-  begin fun () ->
-    F.go_root `Template;
-    FileUtil.pwd ()
-  end |> F.save_path
+let get_website_path () = F.get_path_obj_website `Template
 
-(** Get the root path of the current brick *)
-let get_brick_root () =
-  begin fun () ->
-    F.go_root `Brick;
-    FileUtil.pwd ()
-  end |> F.save_path
+(* Duplicate in Manage_bricks, get the root path of the current brick.
+   Use the one in Manage_bricks if possible. *)
+let get_current_brick_path () = F.get_path_obj_website `Brick
+
+let get_brick_path brick_name =
+  F.get_path_obj_website ~obj_name:brick_name `Brick
+
 
 (* When I use a "_" at the end like in fctname_ that means that the function
    is only for the current brick. Else it provide in a recursive way. *)

@@ -211,7 +211,7 @@ let get_loaded_bricks_cmd =
     `S "DESCRIPTION";
     `P doc ] @ help_secs
   in
-  Term.(pure Website_info.get_loaded_bricks_cmdl $ copts_t),
+  Term.(pure Local_website.get_loaded_bricks_cmdl $ copts_t),
   Term.info "get_loaded_bricks" ~sdocs:copts_sect ~doc ~man
 
 let compile_cmd = 
@@ -224,7 +224,7 @@ let compile_cmd =
     let doc = "Name of the brick (if not given compile everything, if just a point compile only the current brick)" in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure Website_info.compile_cmdl $ copts_t $ brick_name),
+  Term.(pure Local_website.compile_cmdl $ copts_t $ brick_name),
   Term.info "compile" ~sdocs:copts_sect ~doc ~man
 
 let clean_cmd = 
@@ -237,7 +237,7 @@ let clean_cmd =
     let doc = "Name of the brick (if not given clean everything)" in
     Arg.(value & pos 0 string "" & info [] ~docv:"BRICK" ~doc)
   in
-  Term.(pure Website_info.clean_cmdl $ copts_t $ brick_name),
+  Term.(pure Local_website.clean_cmdl $ copts_t $ brick_name),
   Term.info "clean" ~sdocs:copts_sect ~doc ~man
 
 let generate_www_cmd =
@@ -246,7 +246,7 @@ let generate_www_cmd =
     `S "DESCRIPTION";
     `P doc ] @ help_secs
   in
-  Term.(pure Website_info.generate_www_cmdl $ copts_t),
+  Term.(pure Local_website.generate_www_cmdl $ copts_t),
   Term.info "generate_www" ~sdocs:copts_sect ~doc ~man
 
 let run_cmd =
@@ -255,7 +255,7 @@ let run_cmd =
     `S "DESCRIPTION";
     `P doc ] @ help_secs
   in
-  Term.(pure Website_info.run_cmdl $ copts_t),
+  Term.(pure Local_website.run_cmdl $ copts_t),
   Term.info "run" ~sdocs:copts_sect ~doc ~man
 
 let all_cmd =
@@ -264,7 +264,7 @@ let all_cmd =
     `S "DESCRIPTION";
     `P doc ] @ help_secs
   in
-  Term.(pure Website_info.all_cmdl $ copts_t),
+  Term.(pure Local_website.all_cmdl $ copts_t),
   Term.info "all" ~sdocs:copts_sect ~doc ~man
 
 
