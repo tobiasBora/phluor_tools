@@ -193,7 +193,7 @@ let update_config_brick_cmd =
   Term.info "update_config_brick" ~sdocs:copts_sect ~doc ~man
 
 let cd_cmd = 
-  let doc = "With a dot (.) in parameters it returns the string to run in order to go in the root of the project. Else, you can choose a brick to go in. The usual way to use it is to do $(phluor_tools cd <begining of brick name>). Note that due to a strange behaviour of shell, when several bricks match <begining of brick name>, the list of possible bricks isn't prompted when you use $(...)." in
+  let doc = "With a dot (.) in parameters it returns the string to run in order to go in the root of the project. Else, you can choose a brick to go in, or give only a part of the brick's name. The usual way to use it is to do $(phluor_tools cd <begining of brick name>)." in
   let man = [
     `S "DESCRIPTION";
     `P doc] @ help_secs

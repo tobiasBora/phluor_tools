@@ -80,17 +80,21 @@ let save_path f =
 
 exception Empty_list of string
 
-(** Prompt a list and ask to the user to choose an item *)
-let choose_in_list ?(force_ask=false) l =
+(** Prompt a list and ask to the user to choose an item. [force_ask] can
+    be used to ask for a confirmation even if their is only one element.
+    [oc] is used to specify a different channel of print. It is usefull
+    especilly when stdout is not usable cause phluor_tools is inside a
+    $(...) (Cf. function cd) *)
+let choose_in_list ?(force_ask=false) ?(oc=stdout) l =
   let nb_el = List.length l in
   if nb_el = 0 then
     raise (Empty_list "No element corresponds to the description")
   else if nb_el = 1 && not force_ask then
     fst (List.hd l)
   else begin
-    pr "Please choose an element:\n";
+    Printf.fprintf oc "Please choose an element:\n";
     let display_list l =
-      List.iteri (fun i s -> pr "%d - %s\n%!" (i+1) (snd s)) l in
+      List.iteri (fun i s -> Printf.fprintf oc "%d - %s\n%!" (i+1) (snd s)) l in
     let rec aux () =
       try
         display_list l;
@@ -98,8 +102,8 @@ let choose_in_list ?(force_ask=false) l =
         if n < 1 || n > nb_el then
           failwith "The number is not in the good range"
         else n
-      with Failure e -> pr "%s\n" e; aux ()
-         | _ -> pr "You must give a number.\n"; aux ()
+      with Failure e -> Printf.fprintf oc "%s\n" e; aux ()
+         | _ -> Printf.fprintf oc "You must give a number.\n"; aux ()
     in
     ((aux ()) - 1)
     |> List.nth l

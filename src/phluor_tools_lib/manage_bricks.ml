@@ -316,8 +316,9 @@ let update_local_config brick_name =
       Printf.printf "The brick %s doesn't exist." brick_name
   end |> F.save_path
 
-(** Let the user choose a brick, except if interactiv is [false] *)
-let get_brick ?(local=false) ?(interactiv=true) brick_name =
+(** Let the user choose a brick, except if interactive is [false] *)
+let get_brick ?(local=false) ?oc ?(interactive=true)
+    ?(warning_non_interactive=(fun _ -> ())) brick_name =
   let (is_installed, available_bricks) =
     if local then
       (is_brick_installed brick_name,
@@ -340,8 +341,12 @@ let get_brick ?(local=false) ?(interactiv=true) brick_name =
     if List.length l = 0 then
       raise (F.Empty_list "[Get brick] No element corresponds\
                            to the description")
-    else if not interactiv then fst (List.hd l)
-    else choose_in_list l
+    else if not interactive then
+      (
+        if List.length l > 1 then
+          warning_non_interactive l;
+        fst (List.hd l))
+    else choose_in_list ?oc l
 
 
 (* ======================================== *)
@@ -751,5 +756,9 @@ let update_config_brick_cmdl copts brick_name =
 let cd copts_t brick_name = match brick_name with
     "." -> Printf.printf "cd %s\n" (LW.get_website_path ())
   | _ ->
-    get_brick ~local:true brick_name
-    |> fun br -> Printf.printf "cd %s\n" (get_brick_path br)
+    get_brick
+      ~local:true
+      ~oc:stderr (* stderr is usefull here not to be catch by $(...) *)
+      brick_name
+    |> fun br -> (pr "cd %s\n" (get_brick_path br))
+
