@@ -1,5 +1,6 @@
 let (//) = FilePath.concat
 module F = File_operation
+open F.Print
 let sp = Printf.sprintf
 let (>>=) = Lwt.(>>=)
 let (>|=) = Lwt.(>|=)
@@ -36,8 +37,8 @@ module SDict = Map.Make(String)
 let get_current_brick_name () =
   begin fun () ->
     let a = FileUtil.pwd () in
-    F.go_root `Brick;
-    let b = FileUtil.pwd () in
+    F.go_root `Template;
+    let b = (FileUtil.pwd ()) // ("bricks_src") in
     FilePath.make_relative b a
   end |> F.save_path
 
@@ -56,7 +57,7 @@ let get_brick_path brick_name =
    is only for the current brick. Else it provide in a recursive way. *)
 let get_brick_depends_ brick_name =
   let pwd = FileUtil.pwd () in
-  F.(go_root `Brick);
+  F.(go_brick brick_name);
   pr "Getting brick depends of %s...\n%!" brick_name;
   let tmp = F.list_of_file ("package" // "brick_depends.txt") in
   Sys.chdir pwd;
@@ -119,24 +120,26 @@ let _run_command' cmd_array =
   pr "Command:%s\n%!" (Array.fold_left
                          (fun a b -> sp "%s %s" a b) "" cmd_array);
   Lwt_process.exec
+    ~stdout:(`FD_copy (Unix.descr_of_out_channel stdout))
+    ~stderr:(`FD_copy (Unix.descr_of_out_channel stderr))
     (cmd_array.(0), cmd_array)
 
 (** Send a command to a specific brick, no dependances. *)
 let send_command_brick command brick_name =
   let pwd = FileUtil.pwd () in
+  pr_i "=== Compiling %s ===\n%!" brick_name;
   F.(go_root ~obj_name:brick_name `Brick);
-  pr "=== Compiling %s ===\n" brick_name;
   pr "Current folder : %s\n" (FileUtil.pwd ());
   _run_command' command
   >>= (fun status ->
         match status with
         Unix.WEXITED 0 -> Lwt.return ()
       | Unix.WSIGNALED _ ->
-        Lwt.fail (Failure "WSIGNALED received in compile_brick_'")
+        Lwt.fail (Failure "WSIGNALED received in send_command_brick'")
       | Unix.WSTOPPED _ ->
-        Lwt.fail (Failure "WSTOPPED received in compile_brick_'")
+        Lwt.fail (Failure "WSTOPPED received in send_command_brick'")
       | Unix.WEXITED n ->
-        Lwt.fail (Failure (sp "WEXITED failed with code %d'" n)))
+        Lwt.fail (Failure (sp "WEXITED failed with code %d in send_command_brick'" n)))
   >>= fun () ->
   Lwt.return (Sys.chdir pwd)
 
@@ -306,7 +309,7 @@ let _copy_bricks_server_part () =
       pr "Copying %s...\n" brick_name;
       mkdir ~parent:true (sp "www/modules/%s" brick_name);
       cp ~recurse:true
-        (ls (sp "bricks_src/%s/_exec/" brick_name))
+        [sp "bricks_src/%s/_build/server_part.cma" brick_name]
         (sp "www/modules/%s/" brick_name))
 
 let _update_config () =
@@ -321,7 +324,7 @@ let _update_config () =
   let default_dico = F.list_of_file "link_server_conf.txt"
                  |> List.filter
                    (fun s -> not Str.(string_match (regexp "^#") s 0))
-                 |> List.hd
+                 |> (try List.hd with _ -> failwith "Error : Please give in link_server_conf.txt a default dico file.")
                  |> F.dico_of_file in
   (* ... and replace it with the just loaded dico *)
   F.replace_in_file [] default_dico ~avoid_error:true file_conf file_conf;
@@ -334,7 +337,7 @@ let _update_config () =
       *)
       let brick_config =
         let content = F.list_of_file (sp "bricks_src/%s/package/new_brick_conf.txt" brick_name) in
-        if content = [] || List.hd content <> "" then List.hd content
+        if content <> [] && List.hd content <> "" then List.hd content
         else brick_name
       in
       pr "-- Loading the configuration of %s with the file from %s\n"
@@ -358,11 +361,13 @@ let _update_config () =
         ~avoid_error:true file_conf file_conf;
       F.replace_in_file
         []
-        ((sp "config/%s/main.conf" brick_config) |> F.dico_of_file)
+        ((sp "config/%s/main.conf" brick_config)
+         |> F.dico_of_file ~avoid_error:true)
         ~avoid_error:true file_conf file_conf;
       F.replace_in_file
         []
-        ((sp "bricks_src/%s/config/main.conf" brick_config) |> F.dico_of_file)
+        ((sp "bricks_src/%s/config/main.conf" brick_config)
+         |> F.dico_of_file ~avoid_error:true)
         ~avoid_error:true file_conf file_conf;
     );
   (* Do again a replacement if some bricks need it *)
@@ -420,9 +425,9 @@ let run () =
 
 let compile_cmdl copts brick_name =
   F.go_root `Template;
-  pr "#################################\n";
-  pr "########## BUILDING... ##########\n";
-  pr "#################################\n";
+  pr_t "#################################\n";
+  pr_t "########## BUILDING... ##########\n";
+  pr_t "#################################\n";
   (match brick_name with
      "" ->
      (* Compile everything *)
@@ -432,6 +437,7 @@ let compile_cmdl copts brick_name =
    | _ ->
      (* Compile only a given brick *)
      compile_bricks ~brick_list:[brick_name] ());
+  pr "Compile ";
   compile_js ()
 
 let clean_cmdl copts brick_name =

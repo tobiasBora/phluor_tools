@@ -30,7 +30,8 @@ Library phluor_tools_lib
         cmdliner,
         lwt,
         lwt.unix,
-        sequence
+        sequence,
+        ANSITerminal
   
 Executable "phluor_tools"
   Path:       src/phluor_tools/
@@ -46,14 +47,15 @@ Executable "phluor_tools"
     cmdliner,
     phluor_tools_lib,
     lwt,
-    lwt.unix
+    lwt.unix,
+    ANSITerminal
     
 
 Executable install_data
   Path:		src/phluor_tools/
   BuildTools: ocamlbuild
   MainIs:	install_data.ml
-  BuildDepends:	fileutils, unix, str, containers, lwt, lwt.unix, sequence
+  BuildDepends:	fileutils, unix, str, containers, lwt, lwt.unix, sequence, ANSITerminal
   Install:	false
 
 PostInstallCommand: $install_data $datadir $pkg_name data

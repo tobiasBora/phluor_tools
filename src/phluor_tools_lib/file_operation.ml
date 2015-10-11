@@ -110,7 +110,19 @@ let choose_in_list ?(force_ask=false) ?(oc=stdout) l =
     |> fst
   end
 
+module Print = struct
+  (** Printf title in terminal (in red) *)
+  let pr_t x = ANSITerminal.(printf [Bold] x)
+  (** Printf information message in terminal (in red) *)
+  let pr_i x = ANSITerminal.(printf [green] x)
+  (** Printf error message in terminal (in red) *)
+  let pr_e x = ANSITerminal.(printf [red] x)
+  (** Printf warning message in terminal (in red) *)
+  let pr_w x = ANSITerminal.(printf [yellow] x)
+end
 
+open Print
+    
 (* =================================== *)
 (* ===== File content operations ===== *)
 (* =================================== *)
